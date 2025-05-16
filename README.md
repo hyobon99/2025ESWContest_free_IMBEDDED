@@ -3,24 +3,6 @@
 간단한 텍스트 기반 TRPG(테이블탑 롤플레잉 게임) 관리용 데스크탑 애플리케이션입니다.  
 PySide6를 사용한 Qt GUI로, 게임(세션) 생성·삭제, 캐릭터 등록·선택, 맵·전투 화면 전환 등의 기본 기능을 제공(할 예정정)
 
-## 폴더 구조
-
-project_root/
-├── data/
-│ └── games.json # 생성된 게임 세션 정보 저장 파일
-├── core/
-│ └── game_manager.py # Game, GameManager 클래스 (도메인 로직)
-├── gui/
-│ └── main_window.py # MainWindow 클래스 (화면 전환, 시그널 연결)
-├── ui/
-│ ├── mainwindow.ui # Qt Creator 로 만든 .ui 파일 (GPL-3.0)
-│ └── mainwindow.py # pyside6-uic 로 생성된 UI 파이썬 모듈
-├── tests/ # (선택) 단위 테스트 모듈
-├── main.py # 진입점 (python main.py 로 실행)
-├── requirements.txt # 의존 패키지 목록
-└── README.md # 프로젝트 설명 문서
-
-
 ## 주요 파일 역할
 
 - **main.py**  
