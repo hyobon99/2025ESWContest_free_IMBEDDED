@@ -16,9 +16,15 @@ PySide6를 사용한 Qt GUI로, 게임(세션) 생성·삭제, 캐릭터 등록�
   ```bash
   $ pyside6-uic ui/mainwindow.ui -o ui/mainwindow.py 
 -**core/game_manager.py**
+
   게임 세션(생성시간 기반)의 로드·저장·추가·삭제 비즈니스 로직 담당.
+  
 -**gui/main_window.py**
+
   core와 ui를 연결하여 실제 창을 띄우고, 사용자 입력(버튼·리스트 클릭) 처리를 담당.
+  
 -**data/games.json**
+
   실행 시 동적으로 생성되는 게임 세션 정보를 보관하는 JSON 파일.
+  
 
