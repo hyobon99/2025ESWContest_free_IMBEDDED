@@ -1,3 +1,4 @@
+#include <Arduino.h>
 // Velostat 센서 어레이 제어용 Arduino 코드 (40×30)
 // • 5×8-bit Shift Register → 40개 행(Row) 제어
 // • 4×8-ch MUX(CD4051) → 32개 열 중 앞 30개 열(Column) 선택
@@ -22,13 +23,21 @@ const int numCols = 30;      // 실제로 읽을 열 개수 (4×8=32 중 앞 30�
 const int numRows = numShiftRegs * 8;  // 40
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(115200); // 통신 속도는 유지, 데이터 포맷만 변경
   pinMode(shiftDataPin,  OUTPUT);
   pinMode(shiftClockPin, OUTPUT);
   pinMode(shiftLatchPin, OUTPUT);
   for (int i = 0; i < numMuxBits; i++) {
     pinMode(muxSelectPins[i], OUTPUT);
   }
+
+  // ADC Prescaler 변경 (기본값 128 -> 16)
+  // ADCSRA (ADC Control and Status Register A)
+  // ADPS2, ADPS1, ADPS0: ADC Prescaler Select Bits
+  // 0b111 (128), 0b110 (64), 0b101 (32), 0b100 (16)
+  // 16MHz / 16 = 1MHz ADC clock. 13 cycles for conversion = ~13µs.
+  ADCSRA &= ~((1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0)); // 현재 설정된 prescaler 비트 클리어
+  ADCSRA |= (1 << ADPS2); // ADPS2 = 1, ADPS1 = 0, ADPS0 = 0 (Prescaler 16)
 }
 
 void loop() {
@@ -36,36 +45,31 @@ void loop() {
   for (int row = 0; row < numRows; row++) {
     selectRow(row);
 
-    // 각 열(col)마다 MUX 채널 설정 → 모든 MUX의 COM에서 읽기
     int count = 0;
-    for (int col = 0; col < 8; col++) {
-      selectMux(col);
-      delayMicroseconds(50);  // MUX 안정화
 
-      4개의 MUX에서 값 읽기
-    //   for (int dev = 0; dev < numMuxDevices; dev++) {
-    //     // 전체 인덱스가 numCols 미만일 때만 출력
-    //     if (count < numCols) {
-    //       int val = analogRead(muxAnalogPins[dev]);
-    //       Serial.print(val);
-    //       Serial.print(',');  
-    //     }
-    //     count++;
-    //   }
-    // }
-    // Serial.println();
-      for (int dev = 0; dev < numMuxDevices; dev++) {
-        if (count < numCols) {
-          Serial.print(val);
-          if (count < numCols-1) Serial.print(',');
+    for (int dev = 0; dev < numMuxDevices; dev++) {
+      for (int col = 0; col < 8; col++) {
+        if (count >= numCols) {
+          break; 
         }
+
+        selectMux(col);
+        delayMicroseconds(10);  // MUX 안정화 시간 단축 (기존 50)
+
+        unsigned char val_byte = analogRead(muxAnalogPins[dev]) >> 2; // 0-1023 값을 0-255 값으로 변환
+        Serial.write(val_byte); // 변환된 1바이트 값을 바이너리로 전송
+        count++;
       }
-    Serial.println();
+      if (count >= numCols) {
+        break;
+      }
+    }
+    // Serial.println(); // 바이너리 전송 시에는 줄바꿈 문자를 보내지 않음
   }
-  delay(100);  // 약 10fps
+  delay(10);  // 전체 스캔 후 대기 시간 단축 (기존 100)
 }
 
-// ─── 행 선택 (40비트 중 하나만 ‘1’) ──────────────────────
+// ─── 행 선택 (40비트 중 하나만 '1') ──────────────────────
 void selectRow(int row) {
   digitalWrite(shiftLatchPin, LOW);
   // 5바이트(5×8비트)만큼 보낼 데이터 계산
@@ -75,7 +79,7 @@ void selectRow(int row) {
     if (row >= startBit && row < startBit + 8) {
       b = 1 << (row - startBit);
     }
-    shiftOut(shiftDataPin, shiftClockPin, MSBFIRST, b);
+    shiftOut(shiftDataPin, shiftClockPin, LSBFIRST, b);
   }
   digitalWrite(shiftLatchPin, HIGH);
   delayMicroseconds(10);  // 출력 안정화

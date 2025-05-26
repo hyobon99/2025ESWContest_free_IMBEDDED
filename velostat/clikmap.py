@@ -1,3 +1,4 @@
+
 import serial
 import serial.tools.list_ports
 import numpy as np
@@ -144,6 +145,7 @@ if __name__ == "__main__":
                     x_px = x_px + ADJUST_X
                     y_px = y_px + ADJUST_Y
                     pyautogui.moveTo(x_px, y_px)
+                    pyautogui.click()
 
             # 히트맵 화면 갱신
             if use_heatmap:
