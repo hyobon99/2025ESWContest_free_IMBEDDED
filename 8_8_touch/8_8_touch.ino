@@ -44,29 +44,18 @@ void loop() {
   // 각 행을 차례로 활성화
   for (int row = 0; row < numRows; row++) {
     selectRow(row);
-
     int count = 0;
 
-    for (int dev = 0; dev < numMuxDevices; dev++) {
-      for (int col = 0; col < 8; col++) {
-        if (count >= numCols) {
-          break; 
-        }
-
-        selectMux(col);
-        delayMicroseconds(10);  // MUX 안정화 시간 단축 (기존 50)
-
+    for (int col = 0; col < 8; col++) {
+      selectMux(col); //MUX 신호 선택
+      delayMicroseconds(50);  // MUX 안정화 시간
+      //선택된 MUX신호에서, MUX의 신호를 읽어들임, ex> 1 9 17의 순서로 읽는 느낌
+      for (int dev = 0; dev < numMuxDevices; dev++) {
         unsigned char val_byte = analogRead(muxAnalogPins[dev]) >> 2; // 0-1023 값을 0-255 값으로 변환
         Serial.write(val_byte); // 변환된 1바이트 값을 바이너리로 전송
-        count++;
       }
-      if (count >= numCols) {
-        break;
-      }
-    }
-    // Serial.println(); // 바이너리 전송 시에는 줄바꿈 문자를 보내지 않음
+    if (count >= numCols) break; 
   }
-  delay(10);  // 전체 스캔 후 대기 시간 단축 (기존 100)
 }
 
 // ─── 행 선택 (40비트 중 하나만 '1') ──────────────────────

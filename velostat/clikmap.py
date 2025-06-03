@@ -12,7 +12,7 @@ plt.rcParams['font.family'] = 'Malgun Gothic'
 plt.rcParams['axes.unicode_minus'] = False
 
 # ─── 설정 ───────────────────────────────────────────────────────────
-PORT            = 'COM9'       # 실제 연결된 포트로 수정 #라즈베리에 연결할 경우, /dev/ttyACM0 으로 수정! - 다를 sudo 있음
+PORT            = 'COM9'       # 실제 연결된 포트로 수정 #라즈베리에 연결할 경우, /dev/ttyACM0 으로 수정! - 다를  있음
 BAUDRATE        = 115200
 NUM_ROWS        = 40
 NUM_COLS        = 30
@@ -107,10 +107,22 @@ if __name__ == "__main__":
 
     try:
         while True:
-            frame = read_frame()
+            frame_raw = read_frame()
             if frame is None:
                 time.sleep(0.001)
                 continue
+            
+           # ─── 순서 재배열 코드──────────────────────────────────
+            # (1) k → 실제 열(actual_col) 계산
+            col_indices = np.arange(NUM_COLS)
+            dev      = col_indices % 4 #아날로그 핀
+            ch_index = col_indices // 4 #체널 인덱스
+            actual_col = dev * 8 + ch_index # 0 8 16 24 1 9 17 28 의 순서
+            # (2) 작은 actual_col 순으로 k 인덱스를 나열
+            order = np.argsort(actual_col)
+            # (3) 재배열 수행
+            frame = frame_raw[:, order]
+            # ─────────────────────────────────────────────────────────────────
 
             corr = frame.astype(np.float32) - offset
             corr = np.clip(corr, 0, 255).astype(np.uint8)
@@ -130,14 +142,15 @@ if __name__ == "__main__":
                     continue
                 r, c, v = peak
 
+                #히트맵 사용시, 터치점을 표기
                 if use_heatmap:
                     circ = Circle((c, r), radius=1.5, fill=False,
                                   edgecolor='cyan', linewidth=2)
                     ax.add_patch(circ)
                     circles.append(circ)
+                    
+                #히트맵 미 사용시, 즉, 터치 사용시, 표기없이, 마우스를 해당 지점으로 움직임
                 else:
-                    # x, y 좌표를 서로 바꿈: 행->x, 열->y 매핑
-                                        # x,y 좌표: 행->x, 열->y 매핑
                     x_px = int(round(r / (NUM_ROWS - 1) * (SCREEN_W - 1)))
                     y_px = int(round(c / (NUM_COLS - 1) * (SCREEN_H - 1)))
                     y_px = SCREEN_H - 1 - y_px
