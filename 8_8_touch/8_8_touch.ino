@@ -41,6 +41,9 @@ void setup() {
 }
 
 void loop() {
+  // 프레임 시작 표시
+  Serial.write(0xFF);
+  
   // 각 행을 차례로 활성화
   for (int row = 0; row < numRows; row++) {
     selectRow(row);
@@ -54,8 +57,11 @@ void loop() {
         unsigned char val_byte = analogRead(muxAnalogPins[dev]) >> 2; // 0-1023 값을 0-255 값으로 변환
         Serial.write(val_byte); // 변환된 1바이트 값을 바이너리로 전송
       }
-    if (count >= numCols) break; 
+      if (count >= numCols) break; 
+    }
   }
+  // 프레임 간 약간의 지연 추가
+  delay(5);
 }
 
 // ─── 행 선택 (40비트 중 하나만 '1') ──────────────────────
