@@ -6,8 +6,7 @@ from matplotlib.patches import Circle
 import time
 import pyautogui   # pip install pyautogui
 
-
-#터치 칼리브레이션 코드
+#최적화용 python 코드
 
 # 한글 폰트 설정 (Windows Malgun Gothic)
 plt.rcParams['font.family'] = 'Malgun Gothic'
@@ -63,7 +62,24 @@ def read_frame():
     raw = ser.read(FRAME_SIZE)
     if len(raw) != FRAME_SIZE:
         return None
-    return np.frombuffer(raw, dtype=np.uint8).reshape((NUM_ROWS, NUM_COLS))
+    
+    # 바이트 데이터를 1D 배열로 변환
+    data = np.frombuffer(raw, dtype=np.uint8)
+    
+    # MUX 패턴에 따라 데이터 재구성
+    frame = np.zeros((NUM_ROWS, NUM_COLS), dtype=np.uint8)
+    for row in range(NUM_ROWS):
+        for mux_ch in range(8):  # MUX 채널 (0-7)
+            for dev in range(4):  # MUX 디바이스 (0-3)
+                col = dev * 8 + mux_ch
+                if col >= NUM_COLS:
+                    continue
+                # MUX 패턴에 맞는 인덱스 계산
+                idx = row * NUM_COLS + mux_ch * 4 + dev
+                if idx < len(data):
+                    frame[row, col] = data[idx]
+    
+    return frame
 
 
 def calibrate():
@@ -83,10 +99,11 @@ def calibrate():
 def perform_calibration():
     print("\n=== 터치패드 캘리브레이션 시작 ===")
     print("화면의 모서리 4점을 순서대로 터치해주세요.")
+    print("각 터치 후 엔터를 눌러 다음 단계로 진행하세요.")
     
     for i, (screen_x, screen_y) in enumerate(calibration_points):
         print(f"\n{i+1}번째 포인트: 화면 좌표 ({screen_x}, {screen_y})")
-        print("해당 위치를 터치해주세요...")
+        print("해당 위치를 터치하고 엔터를 눌러주세요...")
         
         while True:
             frame = read_frame()
@@ -103,10 +120,11 @@ def perform_calibration():
                 if peak:
                     r, c, v = peak
                     if v >= TOUCH_THRESHOLD:
+                        print(f"터치 감지됨: ({r}, {c})")
+                        print("엔터를 눌러 다음 단계로 진행하세요...")
+                        input()  # 엔터 입력 대기
                         calibration_data['touch_points'].append((r, c))
                         calibration_data['screen_points'].append((screen_x, screen_y))
-                        print(f"터치 감지됨: ({r}, {c})")
-                        time.sleep(0.5)  # 터치 안정화를 위한 대기
                         break
             else:
                 continue
