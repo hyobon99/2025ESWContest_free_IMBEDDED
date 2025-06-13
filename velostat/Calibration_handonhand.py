@@ -1,4 +1,3 @@
-
 import serial
 import serial.tools.list_ports
 import numpy as np
@@ -7,12 +6,15 @@ from matplotlib.patches import Circle
 import time
 import pyautogui   # pip install pyautogui
 
+
+#터치 칼리브레이션 코드
+
 # 한글 폰트 설정 (Windows Malgun Gothic)
 plt.rcParams['font.family'] = 'Malgun Gothic'
 plt.rcParams['axes.unicode_minus'] = False
 
 # ─── 설정 ───────────────────────────────────────────────────────────
-PORT            = '/dev/ttyACM0'       # 실제 연결된 포트로 수정 #라즈베리에 연결할 경우, /dev/ttyACM0 으로 수정! - 다를 sudo 있음
+PORT            = 'COM9'       # 실제 연결된 포트로 수정 #라즈베리에 연결할 경우, /dev/ttyACM0 으로 수정! - 다를 sudo 있음
 BAUDRATE        = 115200
 NUM_ROWS        = 40
 NUM_COLS        = 30
@@ -21,10 +23,25 @@ CAL_FRAMES      = 10           # 캘리브레이션용 프레임 수
 TOUCH_THRESHOLD = 30           # 터치로 판단할 최소값
 
 # ─── 화면 해상도 ─────────────────────────────────────────────────────
-SCREEN_W        = 1280       # 화면 해상도 가로(px)
-SCREEN_H        = 800        # 화면 해상도 세로(px)
+SCREEN_W        = 1920         # 화면 해상도 가로(px)
+SCREEN_H        = 1080        # 화면 해상도 세로(px)
 ADJUST_X        = 0#2560     # 마우스 X축 보정값(px), 오른쪽으로 치우칠 때 음수로 조정
 ADJUST_Y        = 0#150    # 마우스 Y축 보정값(px)         # 화면 해상도 세로(px)
+
+# 캘리브레이션 포인트
+calibration_points = [
+    (0, 0),                    # 좌상단
+    (SCREEN_W-1, 0),          # 우상단
+    (0, SCREEN_H-1),          # 좌하단
+    (SCREEN_W-1, SCREEN_H-1)  # 우하단
+]
+
+# 캘리브레이션 데이터 저장
+calibration_data = {
+    'touch_points': [],        # 터치 좌표 저장
+    'screen_points': [],       # 화면 좌표 저장
+    'matrix': None            # 변환 행렬
+}
 
 # ─── 사분면 정의 ────────────────────────────────────────────────────
 center_r, center_c = NUM_ROWS//2, NUM_COLS//2
@@ -63,6 +80,65 @@ def calibrate():
     return offset
 
 
+def perform_calibration():
+    print("\n=== 터치패드 캘리브레이션 시작 ===")
+    print("화면의 모서리 4점을 순서대로 터치해주세요.")
+    
+    for i, (screen_x, screen_y) in enumerate(calibration_points):
+        print(f"\n{i+1}번째 포인트: 화면 좌표 ({screen_x}, {screen_y})")
+        print("해당 위치를 터치해주세요...")
+        
+        while True:
+            frame = read_frame()
+            if frame is None:
+                continue
+                
+            corr = frame.astype(np.float32) - offset
+            corr = np.clip(corr, 0, 255).astype(np.uint8)
+            filtered = keep_row_col_max_intersection(corr)
+            
+            # 터치 감지
+            for name, (rs, cs) in quadrants.items():
+                peak = find_peak(filtered, rs, cs)
+                if peak:
+                    r, c, v = peak
+                    if v >= TOUCH_THRESHOLD:
+                        calibration_data['touch_points'].append((r, c))
+                        calibration_data['screen_points'].append((screen_x, screen_y))
+                        print(f"터치 감지됨: ({r}, {c})")
+                        time.sleep(0.5)  # 터치 안정화를 위한 대기
+                        break
+            else:
+                continue
+            break
+    
+    # 변환 행렬 계산
+    touch_points = np.array(calibration_data['touch_points'])
+    screen_points = np.array(calibration_data['screen_points'])
+    
+    # 2D 변환 행렬 계산 (x, y 각각에 대해)
+    x_matrix = np.polyfit(touch_points[:, 0], screen_points[:, 0], 1)
+    y_matrix = np.polyfit(touch_points[:, 1], screen_points[:, 1], 1)
+    
+    calibration_data['matrix'] = (x_matrix, y_matrix)
+    print("\n캘리브레이션 완료!")
+
+
+def map_touch_to_screen(r, c):
+    if calibration_data['matrix'] is None:
+        return None
+    
+    x_matrix, y_matrix = calibration_data['matrix']
+    screen_x = int(np.polyval(x_matrix, r))
+    screen_y = int(np.polyval(y_matrix, c))
+    
+    # 화면 범위 제한
+    screen_x = np.clip(screen_x, 0, SCREEN_W-1)
+    screen_y = np.clip(screen_y, 0, SCREEN_H-1)
+    
+    return screen_x, screen_y
+
+
 def keep_row_col_max_intersection(arr):
     row_max = arr.max(axis=1, keepdims=True)
     col_max = arr.max(axis=0, keepdims=True)
@@ -94,6 +170,10 @@ if __name__ == "__main__":
 
     ser = serial.Serial(PORT, BAUDRATE, timeout=1)
     offset = calibrate()
+    
+    # 캘리브레이션 수행
+    perform_calibration()
+    
     last_print = time.time()
 
     # 히트맵용 Matplotlib 세팅
@@ -136,16 +216,11 @@ if __name__ == "__main__":
                     ax.add_patch(circ)
                     circles.append(circ)
                 else:
-                    # x, y 좌표를 서로 바꿈: 행->x, 열->y 매핑
-                                        # x,y 좌표: 행->x, 열->y 매핑
-                    x_px = int(round(r / (NUM_ROWS - 1) * (SCREEN_W - 1)))
-                    y_px = int(round(c / (NUM_COLS - 1) * (SCREEN_H - 1)))
-                    y_px = SCREEN_H - 1 - y_px
-                    # 보정값 적용
-                    x_px = x_px + ADJUST_X
-                    y_px = y_px + ADJUST_Y
-                    pyautogui.moveTo(x_px, y_px)
-                    #pyautogui.click()
+                    # 캘리브레이션된 좌표로 변환
+                    screen_coords = map_touch_to_screen(r, c)
+                    if screen_coords:
+                        x_px, y_px = screen_coords
+                        pyautogui.moveTo(x_px, y_px)
 
             # 히트맵 화면 갱신
             if use_heatmap:

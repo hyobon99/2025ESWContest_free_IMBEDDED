@@ -1,4 +1,3 @@
-
 import serial
 import serial.tools.list_ports
 import numpy as np
@@ -7,12 +6,15 @@ from matplotlib.patches import Circle
 import time
 import pyautogui   # pip install pyautogui
 
+
+#터치 칼리브레이션 코드 3 -> 끝 지점 표시만 함
+
 # 한글 폰트 설정 (Windows Malgun Gothic)
 plt.rcParams['font.family'] = 'Malgun Gothic'
 plt.rcParams['axes.unicode_minus'] = False
 
 # ─── 설정 ───────────────────────────────────────────────────────────
-PORT            = '/dev/ttyACM0'       # 실제 연결된 포트로 수정 #라즈베리에 연결할 경우, /dev/ttyACM0 으로 수정! - 다를 sudo 있음
+PORT            = 'COM9'       # 실제 연결된 포트로 수정 #라즈베리에 연결할 경우, /dev/ttyACM0 으로 수정! - 다를 sudo 있음
 BAUDRATE        = 115200
 NUM_ROWS        = 40
 NUM_COLS        = 30
@@ -21,10 +23,8 @@ CAL_FRAMES      = 10           # 캘리브레이션용 프레임 수
 TOUCH_THRESHOLD = 30           # 터치로 판단할 최소값
 
 # ─── 화면 해상도 ─────────────────────────────────────────────────────
-SCREEN_W        = 1280       # 화면 해상도 가로(px)
-SCREEN_H        = 800        # 화면 해상도 세로(px)
-ADJUST_X        = 0#2560     # 마우스 X축 보정값(px), 오른쪽으로 치우칠 때 음수로 조정
-ADJUST_Y        = 0#150    # 마우스 Y축 보정값(px)         # 화면 해상도 세로(px)
+SCREEN_W        = 1920         # 화면 해상도 가로(px)
+SCREEN_H        = 1080        # 화면 해상도 세로(px)
 
 # ─── 사분면 정의 ────────────────────────────────────────────────────
 center_r, center_c = NUM_ROWS//2, NUM_COLS//2
@@ -41,13 +41,11 @@ def list_ports():
     for p in serial.tools.list_ports.comports():
         print(" •", p.device)
 
-
 def read_frame():
     raw = ser.read(FRAME_SIZE)
     if len(raw) != FRAME_SIZE:
         return None
     return np.frombuffer(raw, dtype=np.uint8).reshape((NUM_ROWS, NUM_COLS))
-
 
 def calibrate():
     print(f"오프셋 보정: 첫 {CAL_FRAMES} 프레임 수집 중… 센서를 건드리지 마세요.")
@@ -62,13 +60,11 @@ def calibrate():
     print("오프셋 보정 완료.")
     return offset
 
-
 def keep_row_col_max_intersection(arr):
     row_max = arr.max(axis=1, keepdims=True)
     col_max = arr.max(axis=0, keepdims=True)
     mask = (arr == row_max) & (arr == col_max)
     return arr * mask
-
 
 def find_peak(arr, rs, cs):
     sub = arr[rs, cs]
@@ -105,6 +101,20 @@ if __name__ == "__main__":
         ax.set_title("40x30 센서 배열 (필터링 후)")
         circles = []
 
+    # 화면 구석에 빨간 점 표시
+    corner_points = [
+        (0, 0),                    # 좌상단
+        (SCREEN_W-1, 0),          # 우상단
+        (0, SCREEN_H-1),          # 좌하단
+        (SCREEN_W-1, SCREEN_H-1)  # 우하단
+    ]
+    
+    # 빨간 점 표시
+    for x, y in corner_points:
+        pyautogui.moveTo(x, y)
+        pyautogui.click()
+        time.sleep(0.1)  # 클릭 간 약간의 딜레이
+
     try:
         while True:
             frame = read_frame()
@@ -137,15 +147,10 @@ if __name__ == "__main__":
                     circles.append(circ)
                 else:
                     # x, y 좌표를 서로 바꿈: 행->x, 열->y 매핑
-                                        # x,y 좌표: 행->x, 열->y 매핑
                     x_px = int(round(r / (NUM_ROWS - 1) * (SCREEN_W - 1)))
                     y_px = int(round(c / (NUM_COLS - 1) * (SCREEN_H - 1)))
                     y_px = SCREEN_H - 1 - y_px
-                    # 보정값 적용
-                    x_px = x_px + ADJUST_X
-                    y_px = y_px + ADJUST_Y
                     pyautogui.moveTo(x_px, y_px)
-                    #pyautogui.click()
 
             # 히트맵 화면 갱신
             if use_heatmap:
