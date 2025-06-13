@@ -156,12 +156,12 @@ if __name__ == "__main__":
                     circles.append(circ)
                 else:
                     # x, y 좌표를 서로 바꿈: 행->x, 열->y 매핑
-                    x_px = int(round(r / (NUM_ROWS - 1) * (SCREEN_W - 1)))
-                    y_px = int(round(c / (NUM_COLS - 1) * (SCREEN_H - 1)))
-                    y_px = SCREEN_H - 1 - y_px
+                    x_px = int(round((NUM_ROWS - 1 - r) / (NUM_ROWS - 1) * (SCREEN_W - 1)))
+                    y_px = int(round((NUM_COLS - 1 - c) / (NUM_COLS - 1) * (SCREEN_H - 1)))
                     # 보정값 적용
                     x_px = x_px + ADJUST_X
                     y_px = y_px + ADJUST_Y
+                    y_px = SCREEN_H - y_px
                     pyautogui.moveTo(x_px, y_px)
                     #pyautogui.click()
 

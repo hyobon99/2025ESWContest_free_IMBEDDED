@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Circle
 import time
 import pyautogui   # pip install pyautogui
+import msvcrt
 
 #최적화용 python 코드
 
@@ -105,6 +106,7 @@ def perform_calibration():
         print(f"\n{i+1}번째 포인트: 화면 좌표 ({screen_x}, {screen_y})")
         print("해당 위치를 터치하고 엔터를 눌러주세요...")
         
+        last_touch = None
         while True:
             frame = read_frame()
             if frame is None:
@@ -120,15 +122,18 @@ def perform_calibration():
                 if peak:
                     r, c, v = peak
                     if v >= TOUCH_THRESHOLD:
+                        last_touch = (r, c)
                         print(f"터치 감지됨: ({r}, {c})")
                         print("엔터를 눌러 다음 단계로 진행하세요...")
-                        input()  # 엔터 입력 대기
-                        calibration_data['touch_points'].append((r, c))
-                        calibration_data['screen_points'].append((screen_x, screen_y))
                         break
-            else:
-                continue
-            break
+            
+            # 엔터 입력 확인
+            if last_touch and msvcrt.kbhit():
+                key = msvcrt.getch()
+                if key == b'\r':  # 엔터 키
+                    calibration_data['touch_points'].append(last_touch)
+                    calibration_data['screen_points'].append((screen_x, screen_y))
+                    break
     
     # 변환 행렬 계산
     touch_points = np.array(calibration_data['touch_points'])
@@ -140,7 +145,6 @@ def perform_calibration():
     
     calibration_data['matrix'] = (x_matrix, y_matrix)
     print("\n캘리브레이션 완료!")
-
 
 def map_touch_to_screen(r, c):
     if calibration_data['matrix'] is None:
@@ -156,13 +160,11 @@ def map_touch_to_screen(r, c):
     
     return screen_x, screen_y
 
-
 def keep_row_col_max_intersection(arr):
     row_max = arr.max(axis=1, keepdims=True)
     col_max = arr.max(axis=0, keepdims=True)
     mask = (arr == row_max) & (arr == col_max)
     return arr * mask
-
 
 def find_peak(arr, rs, cs):
     sub = arr[rs, cs]
