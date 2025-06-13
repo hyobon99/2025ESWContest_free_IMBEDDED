@@ -66,7 +66,7 @@ void loop() {
     }
     // Serial.println(); // 바이너리 전송 시에는 줄바꿈 문자를 보내지 않음
   }
-  delay(10);  // 전체 스캔 후 대기 시간 단축 (기존 100)
+  delay(100);  // 전체 스캔 후 대기 시간 단축 (기존 100)
 }
 
 // ─── 행 선택 (40비트 중 하나만 '1') ──────────────────────
@@ -82,7 +82,7 @@ void selectRow(int row) {
     shiftOut(shiftDataPin, shiftClockPin, LSBFIRST, b);
   }
   digitalWrite(shiftLatchPin, HIGH);
-  delayMicroseconds(10);  // 출력 안정화
+  delayMicroseconds(100);  // 출력 안정화
 }
 
 // ─── MUX 채널 선택 (0~7) ────────────────────────────────
