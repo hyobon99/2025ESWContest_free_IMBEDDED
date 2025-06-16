@@ -77,12 +77,16 @@ def read_frame():
                     continue
                 # MUX 패턴에 맞는 인덱스 계산
                 idx = row * NUM_COLS + mux_ch * 4 + dev
-                if(col == 15):
-                    frame[row, 23] = data[idx] 
-                elif(col == 7):
-                    frame[row, 16] = data[idx] 
-                else:
-                    frame[row, col] = data[idx]
+                if idx < len(data):
+                    
+                    #if(col == 6):
+                    #    frame[row, 25] = data[idx]
+                    if(col == 15):
+                        frame[row, 23] = data[idx] 
+                    elif(col == 7):
+                        frame[row, 16] = data[idx] 
+                    else:
+                        frame[row, col] = data[idx]
     
     return frame
 
