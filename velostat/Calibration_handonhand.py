@@ -8,7 +8,7 @@ import pyautogui   # pip install pyautogui
 import msvcrt
 
 #최적화용 python 코드
-
+pyautogui.FAILSAFE = False
 # 한글 폰트 설정 (Windows Malgun Gothic)
 plt.rcParams['font.family'] = 'Malgun Gothic'
 plt.rcParams['axes.unicode_minus'] = False
@@ -20,7 +20,7 @@ NUM_ROWS        = 40
 NUM_COLS        = 30
 FRAME_SIZE      = NUM_ROWS * NUM_COLS
 CAL_FRAMES      = 10           # 캘리브레이션용 프레임 수
-TOUCH_THRESHOLD = 30           # 터치로 판단할 최소값
+TOUCH_THRESHOLD = 20           # 터치로 판단할 최소값
 
 # ─── 화면 해상도 ─────────────────────────────────────────────────────
 SCREEN_W        = 1920         # 화면 해상도 가로(px)
@@ -77,7 +77,11 @@ def read_frame():
                     continue
                 # MUX 패턴에 맞는 인덱스 계산
                 idx = row * NUM_COLS + mux_ch * 4 + dev
-                if idx < len(data):
+                if(col == 15):
+                    frame[row, 23] = data[idx] 
+                elif(col == 7):
+                    frame[row, 16] = data[idx] 
+                else:
                     frame[row, col] = data[idx]
     
     return frame

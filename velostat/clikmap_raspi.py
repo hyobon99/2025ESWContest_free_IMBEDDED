@@ -1,4 +1,3 @@
-
 import serial
 import serial.tools.list_ports
 import numpy as np
@@ -6,6 +5,8 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Circle
 import time
 import pyautogui   # pip install pyautogui
+
+#최적화용 python 코드
 
 # 한글 폰트 설정 (Windows Malgun Gothic)
 plt.rcParams['font.family'] = 'Malgun Gothic'
@@ -46,7 +47,32 @@ def read_frame():
     raw = ser.read(FRAME_SIZE)
     if len(raw) != FRAME_SIZE:
         return None
-    return np.frombuffer(raw, dtype=np.uint8).reshape((NUM_ROWS, NUM_COLS))
+    
+    # 바이트 데이터를 1D 배열로 변환
+    data = np.frombuffer(raw, dtype=np.uint8)
+    
+    # MUX 패턴에 따라 데이터 재구성
+    frame = np.zeros((NUM_ROWS, NUM_COLS), dtype=np.uint8)
+    for row in range(NUM_ROWS):
+        for mux_ch in range(8):  # MUX 채널 (0-7)
+            for dev in range(4):  # MUX 디바이스 (0-3)
+                col = dev * 8 + mux_ch
+                if col >= NUM_COLS:
+                    continue
+                # MUX 패턴에 맞는 인덱스 계산
+                idx = row * NUM_COLS + mux_ch * 4 + dev
+                if idx < len(data):
+                    
+                    #if(col == 6):
+                    #    frame[row, 25] = data[idx]
+                    if(col == 15):
+                        frame[row, 23] = data[idx] 
+                    elif(col == 7):
+                        frame[row, 16] = data[idx] 
+                    else:
+                        frame[row, col] = data[idx]
+    
+    return frame
 
 
 def calibrate():
@@ -61,6 +87,7 @@ def calibrate():
     offset = np.mean(frames, axis=0).astype(np.float32)
     print("오프셋 보정 완료.")
     return offset
+
 
 
 def keep_row_col_max_intersection(arr):
@@ -137,13 +164,12 @@ if __name__ == "__main__":
                     circles.append(circ)
                 else:
                     # x, y 좌표를 서로 바꿈: 행->x, 열->y 매핑
-                                        # x,y 좌표: 행->x, 열->y 매핑
-                    x_px = int(round(r / (NUM_ROWS - 1) * (SCREEN_W - 1)))
-                    y_px = int(round(c / (NUM_COLS - 1) * (SCREEN_H - 1)))
-                    y_px = SCREEN_H - 1 - y_px
+                    x_px = int(round((NUM_ROWS - 1 - r) / (NUM_ROWS - 1) * (SCREEN_W - 1)))
+                    y_px = int(round((NUM_COLS - 1 - c) / (NUM_COLS - 1) * (SCREEN_H - 1)))
                     # 보정값 적용
                     x_px = x_px + ADJUST_X
                     y_px = y_px + ADJUST_Y
+                    y_px = SCREEN_H - y_px
                     pyautogui.moveTo(x_px, y_px)
                     #pyautogui.click()
 
