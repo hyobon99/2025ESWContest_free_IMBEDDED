@@ -22,7 +22,7 @@ from PyQt5.QtWidgets import QWidget, QPushButton, QLineEdit, QPlainTextEdit, QFr
 from PyQt5.QtCore import Qt, QSize, QRect, QRectF, QPoint, pyqtSignal, QEvent, QByteArray, QDataStream, QIODevice, \
     QMimeData, QLineF, QSettings
 from PyQt5.QtGui import QPainter, QPalette, QColor, QFont, QDrag, QIcon, QCursor, QPolygonF, QPainterPath, QPen, \
-    QBrush
+    QBrush, QResizeEvent
 from collections import deque
 from gui.board import Board
 from distutils.util import strtobool
@@ -45,7 +45,8 @@ class View(QWidget):
 
     def __init__(self, *_):
         super().__init__()
-        self.squareSize = QSize(50, 50)
+        self.squareWidth = 50
+        self.squareHeight = 50
         self.board = Board(14, 14)
         self.pieces = {}
         self.highlights = []
@@ -124,7 +125,7 @@ class View(QWidget):
 
     def autoRotate(self, rotation):
         """Automatically rotates board after move is made or undone."""
-        if (strtobool(str(SETTINGS.value('autorotate') or '0'))):
+        if ((SETTINGS.value('autorotate')) and strtobool(str(SETTINGS.value('autorotate')))):
             self.rotateBoard(rotation)
 
     def setCurrentPlayer(self, player):
@@ -151,47 +152,101 @@ class View(QWidget):
             board.autoRotate.connect(self.autoRotate)
         self.updateGeometry()
 
-    def setSquareSize(self, size):
+    def setSquareSize(self, width, height=None):
         """Sets size of board squares and updates geometry accordingly."""
-        if self.squareSize == size:
-            return
-        self.squareSize = size
-        self.squareSizeChanged.emit(size)
+        if height is None:
+            if self.squareWidth == width.width() and self.squareHeight == width.height():
+                return
+            self.squareWidth = width.width()
+            self.squareHeight = width.height()
+            self.squareSizeChanged.emit(QSize(self.squareWidth, self.squareHeight))
+        else:
+            if self.squareWidth == width and self.squareHeight == height:
+                return
+            self.squareWidth = width
+            self.squareHeight = height
+            self.squareSizeChanged.emit(QSize(self.squareWidth, self.squareHeight))
+
         self.updateGeometry()
+        self.update()
+
+    def resizeEvent(self, event: QResizeEvent):
+        """Handles the widget being resized."""
+        super().resizeEvent(event)
+        new_size = event.size()
+        
+        board_files = self.board.files if self.board else 14
+        board_ranks = self.board.ranks if self.board else 14
+
+        # Calculate square size to fit the board
+        new_square_width = new_size.width() // board_files
+        new_square_height = new_size.height() // board_ranks
+        
+        final_square_size = min(new_square_width, new_square_height)
+
+        if final_square_size < 10:
+            final_square_size = 10
+            
+        # Calculate board dimensions
+        board_width = final_square_size * board_files
+        board_height = final_square_size * board_ranks
+        
+        # Calculate centering offsets
+        x_offset = (new_size.width() - board_width) // 2
+        y_offset = (new_size.height() - board_height) // 2
+        
+        # Set margins to center the board
+        self.setContentsMargins(x_offset, y_offset, x_offset, y_offset)
+        
+        self.setSquareSize(final_square_size, final_square_size)
 
     def sizeHint(self):
         """Implements sizeHint() method. Computes and returns size based on size of board squares."""
-        return QSize(self.squareSize.width() * self.board.files, self.squareSize.height() * self.board.ranks)
+        return QSize(self.squareWidth * self.board.files, self.squareHeight * self.board.ranks)
 
     def squareRect(self, file, rank, orientation=None):
         """Returns square of type QRect at position (file, rank)."""
-        sqSize = self.squareSize
+        sqWidth = self.squareWidth
+        sqHeight = self.squareHeight
+        
+        # Get margins to adjust position
+        margins = self.contentsMargins()
+
         if orientation == 'b':
-            return QRect(QPoint((self.board.ranks - (rank + 1)) * sqSize.width(),
-                                (self.board.files - (file + 1)) * sqSize.height()), sqSize)
+            return QRect(QPoint(margins.left() + (self.board.ranks - (rank + 1)) * sqWidth,
+                                margins.top() + (self.board.files - (file + 1)) * sqHeight), QSize(sqWidth, sqHeight))
         elif orientation == 'y':
-            return QRect(QPoint((self.board.files - (file + 1)) * sqSize.width(), rank * sqSize.height()), sqSize)
+            return QRect(QPoint(margins.left() + (self.board.files - (file + 1)) * sqWidth, 
+                                margins.top() + rank * sqHeight), QSize(sqWidth, sqHeight))
         elif orientation == 'g':
-            return QRect(QPoint(rank * sqSize.width(), file * sqSize.height()), sqSize)
+            return QRect(QPoint(margins.left() + rank * sqWidth, 
+                                margins.top() + file * sqHeight), QSize(sqWidth, sqHeight))
         else:  # red by default
-            return QRect(QPoint(file * sqSize.width(), (self.board.ranks - (rank + 1)) * sqSize.height()), sqSize)
+            return QRect(QPoint(margins.left() + file * sqWidth, 
+                                margins.top() + (self.board.ranks - (rank + 1)) * sqHeight), QSize(sqWidth, sqHeight))
 
     def squareCenter(self, square, orientation=None):
         """Returns center of square as QPoint."""
-        sqSize = self.squareSize
+        sqWidth = self.squareWidth
+        sqHeight = self.squareHeight
         file = square.x()
         rank = square.y()
+        
+        # Get margins to adjust position
+        margins = self.contentsMargins()
+        
         if orientation == 'b':
-            return QPoint(int((self.board.ranks - (rank + 1)) * sqSize.width() + sqSize.width() / 2),
-                          int((self.board.files - (file + 1)) * sqSize.height() + sqSize.height() / 2))
+            return QPoint(margins.left() + int((self.board.ranks - (rank + 1)) * sqWidth + sqWidth / 2),
+                          margins.top() + int((self.board.files - (file + 1)) * sqHeight + sqHeight / 2))
         elif orientation == 'y':
-            return QPoint(int((self.board.files - (file + 1)) * sqSize.width() + sqSize.width() / 2),
-                          int(rank * sqSize.height() + sqSize.height() / 2))
+            return QPoint(margins.left() + int((self.board.files - (file + 1)) * sqWidth + sqWidth / 2),
+                          margins.top() + int(rank * sqHeight + sqHeight / 2))
         elif orientation == 'g':
-            return QPoint(int(rank * sqSize.width() + sqSize.width() / 2), int(file * sqSize.height() + sqSize.height() / 2))
+            return QPoint(margins.left() + int(rank * sqWidth + sqWidth / 2), 
+                          margins.top() + int(file * sqHeight + sqHeight / 2))
         else:  # red by default
-            return QPoint(int(file * sqSize.width() + sqSize.width() / 2),
-                          int((self.board.ranks - (rank + 1)) * sqSize.height() + sqSize.height() / 2))
+            return QPoint(margins.left() + int(file * sqWidth + sqWidth / 2),
+                          margins.top() + int((self.board.ranks - (rank + 1)) * sqHeight + sqHeight / 2))
 
     def paintEvent(self, event):
         """Implements paintEvent() method. Draws squares and pieces on the board."""
@@ -211,7 +266,7 @@ class View(QWidget):
         painter.fillRect(self.squareRect(1, 12, self.orientation[0]), QColor('#40c09526'))
         painter.fillRect(self.squareRect(12, 12, self.orientation[0]), QColor('#404e9161'))
         # Show or hide player names
-        if strtobool(str(SETTINGS.value('shownames') or '0')):
+        if ((SETTINGS.value('shownames')) and strtobool(str(SETTINGS.value('shownames')))):
             self.showNames()
         else:
             self.hideNames()
@@ -221,7 +276,7 @@ class View(QWidget):
                 if not self.maskedSquare == QPoint(file, rank):  # When dragging a piece, don't paint it
                     self.drawPiece(painter, file, rank)
         # Draw coordinates
-        if strtobool(str(SETTINGS.value('showcoordinates') or '0')):
+        if ((SETTINGS.value('showcoordinates')) and strtobool(str(SETTINGS.value('showcoordinates')))):
             for y in range(14):
                 x = 0 if 2 < y < 11 else 3
                 square = self.squareRect(x, y)
@@ -280,7 +335,7 @@ class View(QWidget):
         # if SETTINGS.value('showlegalmoves'): # we remove this setting because preferences don't work properly
         self.drawLegalMoves(painter)
         # Draw coordinate help
-        if strtobool(str(SETTINGS.value('coordinatehelp') or '0')):
+        if ((SETTINGS.value('showcoordinates')) and strtobool(str(SETTINGS.value('coordinatehelp')))):
             if self.coordinate:
                 file = ord(self.coordinate[1][0]) - 97
                 rank = int(self.coordinate[1][1:]) - 1
@@ -326,9 +381,15 @@ class View(QWidget):
 
     def squareAt(self, point, orientation=None):
         """Returns square (file, rank) of type QPoint that contains point."""
-        sqSize = self.squareSize
-        x = point.x() // sqSize.width()
-        y = point.y() // sqSize.height()
+        # Get margins to adjust point coordinates
+        margins = self.contentsMargins()
+        adjusted_x = point.x() - margins.left()
+        adjusted_y = point.y() - margins.top()
+        
+        sqWidth = self.squareWidth
+        sqHeight = self.squareHeight
+        x = adjusted_x // sqWidth
+        y = adjusted_y // sqHeight
         if (x < 0) or (x > 13) or (y < 0) or (y > 13):
             return QPoint()
         elif orientation == 'b':
@@ -362,7 +423,7 @@ class View(QWidget):
                 self.arrowColor = QColor('#ff8c00')
                 self.squareColor = QColor('#80ff8c00')
             else:
-                if strtobool(str(SETTINGS.value('autocolor') or '0')):
+                if ((SETTINGS.value('showcoordinates')) and strtobool(str(SETTINGS.value('autocolor')))):
                     if self.orientation[0] == 'r':
                         self.arrowColor = QColor('#ab272f')
                         self.squareColor = QColor('#80ab272f')
@@ -480,7 +541,7 @@ class View(QWidget):
             offset = QPoint(event.pos() - iconPosition)
             # Pixmap shown under cursor while dragging
             dpr = 2  # device pixel ratio
-            pixmap = icon.pixmap(QSize(self.squareSize.width() * dpr, self.squareSize.height() * dpr))
+            pixmap = icon.pixmap(QSize(self.squareWidth * dpr, self.squareHeight * dpr))
             pixmap.setDevicePixelRatio(dpr)
             # Serialize drag-drop data into QByteArray
             data = QByteArray()
@@ -493,7 +554,7 @@ class View(QWidget):
             drag = QDrag(self)
             drag.setMimeData(mimeData)
             drag.setPixmap(pixmap)
-            drag.setHotSpot(QPoint(int(self.squareSize.width() / 2), int(self.squareSize.height() / 2)))
+            drag.setHotSpot(QPoint(int(self.squareWidth / 2), int(self.squareHeight / 2)))
             self.maskedSquare = self.clickedSquare
             self.dragStarted.emit(self.clickedSquare)
             drag.exec_()
@@ -605,50 +666,49 @@ class View(QWidget):
         for highlight in self.highlights:
             if highlight.Type == self.Arrow.Type:
                 lineWidth = 10
-                sqSize = self.squareSize
                 painter.setPen(QPen(highlight.color, lineWidth, Qt.SolidLine, Qt.RoundCap))
                 origin = highlight.origin
                 target = highlight.target
                 dx = target.x() - origin.x()
                 dy = target.y() - origin.y()
                 # Knight jumps
-                if dx == sqSize.width() and dy == -2 * sqSize.height():
-                    corner = QPoint(origin.x(), origin.y() - 2 * sqSize.height())
+                if dx == self.squareWidth and dy == -2 * self.squareHeight:
+                    corner = QPoint(origin.x(), origin.y() - 2 * self.squareHeight)
                     line = QLineF(origin, corner)
                     painter.drawLine(line)
                     origin = corner
-                elif dx == 2 * sqSize.width() and dy == -sqSize.height():
-                    corner = QPoint(origin.x() + 2 * sqSize.width(), origin.y())
+                elif dx == 2 * self.squareWidth and dy == -self.squareHeight:
+                    corner = QPoint(origin.x() + 2 * self.squareWidth, origin.y())
                     line = QLineF(origin, corner)
                     painter.drawLine(line)
                     origin = corner
-                elif dx == 2 * sqSize.width() and dy == sqSize.height():
-                    corner = QPoint(origin.x() + 2 * sqSize.width(), origin.y())
+                elif dx == 2 * self.squareWidth and dy == self.squareHeight:
+                    corner = QPoint(origin.x() + 2 * self.squareWidth, origin.y())
                     line = QLineF(origin, corner)
                     painter.drawLine(line)
                     origin = corner
-                elif dx == sqSize.width() and dy == 2 * sqSize.height():
-                    corner = QPoint(origin.x(), origin.y() + 2 * sqSize.height())
+                elif dx == self.squareWidth and dy == 2 * self.squareHeight:
+                    corner = QPoint(origin.x(), origin.y() + 2 * self.squareHeight)
                     line = QLineF(origin, corner)
                     painter.drawLine(line)
                     origin = corner
-                elif dx == -sqSize.width() and dy == 2 * sqSize.height():
-                    corner = QPoint(origin.x(), origin.y() + 2 * sqSize.height())
+                elif dx == -self.squareWidth and dy == 2 * self.squareHeight:
+                    corner = QPoint(origin.x(), origin.y() + 2 * self.squareHeight)
                     line = QLineF(origin, corner)
                     painter.drawLine(line)
                     origin = corner
-                elif dx == -2 * sqSize.width() and dy == sqSize.height():
-                    corner = QPoint(origin.x() - 2 * sqSize.width(), origin.y())
+                elif dx == -2 * self.squareWidth and dy == self.squareHeight:
+                    corner = QPoint(origin.x() - 2 * self.squareWidth, origin.y())
                     line = QLineF(origin, corner)
                     painter.drawLine(line)
                     origin = corner
-                elif dx == -2 * sqSize.width() and dy == -sqSize.height():
-                    corner = QPoint(origin.x() - 2 * sqSize.width(), origin.y())
+                elif dx == -2 * self.squareWidth and dy == -self.squareHeight:
+                    corner = QPoint(origin.x() - 2 * self.squareWidth, origin.y())
                     line = QLineF(origin, corner)
                     painter.drawLine(line)
                     origin = corner
-                elif dx == -sqSize.width() and dy == -2 * sqSize.height():
-                    corner = QPoint(origin.x(), origin.y() - 2 * sqSize.height())
+                elif dx == -self.squareWidth and dy == -2 * self.squareHeight:
+                    corner = QPoint(origin.x(), origin.y() - 2 * self.squareHeight)
                     line = QLineF(origin, corner)
                     painter.drawLine(line)
                     origin = corner
@@ -711,12 +771,12 @@ class View(QWidget):
                 center = self.squareCenter(highlight.square, self.orientation[0])
                 if highlight.capture:
                     lineWidth = 4
-                    rx = self.squareSize.width() / 2 - lineWidth / 2
+                    rx = self.squareWidth / 2 - lineWidth / 2
                     ry = rx
                     painter.setPen(QPen(QColor('#40000000'), lineWidth, Qt.SolidLine))
                     painter.drawEllipse(center, rx, ry)
                 else:
-                    rx = self.squareSize.width() / 10
+                    rx = self.squareWidth / 10
                     ry = rx
                     painter.setBrush(QColor('#40000000'))
                     painter.setPen(Qt.NoPen)

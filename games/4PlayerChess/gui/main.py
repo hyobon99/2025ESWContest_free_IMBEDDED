@@ -19,7 +19,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from PyQt5.QtWidgets import QMainWindow, QSizePolicy, QLayout, QListWidget, QListWidgetItem, QListView, QFrame, \
-    QFileDialog, QMenu, QAction, QDialog, QDialogButtonBox, QScrollArea
+    QFileDialog, QMenu, QAction, QDialog, QDialogButtonBox, QScrollArea, QWidget, QVBoxLayout, QLabel, QMessageBox
 from PyQt5.QtCore import Qt, QSize, QPoint, QRect, QSettings, QUrl, QTimer
 from PyQt5.QtGui import QIcon, QColor, QFont, QFontMetrics, QPainter, QDesktopServices
 from ui.mainwindow import Ui_MainWindow
@@ -27,6 +27,7 @@ from ui.settings import Ui_Preferences
 from ui.infodialog import Ui_InfoDialog
 from gui.algorithm import Teams
 from gui.view import Comment
+from gui.sound_manager import SoundManager
 from urllib import request
 import certifi
 from re import compile
@@ -53,23 +54,41 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.setupUi(self)
 
         # Show license notice
-        self.statusbar.showMessage(APP + '. Copyright (C) 2018, GammaDeltaII (GNU GPL-3.0-or-later)', 5000)
+        # self.statusbar.showMessage(APP + '. Copyright (C) 2018, GammaDeltaII (GNU GPL-3.0-or-later)', 5000) # 상태바 숨김으로 주석 처리
 
-        self.timer = QTimer(self)
-        self.timer.setSingleShot(True)
+        # Initialize timer variables - 타이머 UI가 제거되었으므로 관련 코드 주석 처리
+        # self.player_times = {
+        #     'r': 600,  # 10 minutes in seconds
+        #     'b': 600,
+        #     'y': 600,
+        #     'g': 600
+        # }
+        # self.timer_labels = {}
+        # self.game_timer = QTimer(self)
+        # self.game_timer.timeout.connect(self.update_timer)
+        # self.game_timer.start(1000)  # Update every second
+
+        # Create timer labels - 타이머 UI가 제거되었으므로 관련 코드 주석 처리
+        # self.create_timer_labels()
 
         # Create algorithm instance (view instance is already created in UI code)
         self.algorithm = Teams(actors)
 
+        # Initialize sound manager
+        self.sound_manager = SoundManager()
+        
+        # Connect sound manager to algorithm for check/checkmate sounds
+        self.algorithm.sound_manager = self.sound_manager
+
         # if there are moves to be played, store them
         self.moves = moves
 
-        # Create comment label
-        self.comment = Comment()
-        self.comment.setParent(self.moveListTab)
-        self.comment.setEnabled(False)
-        self.comment.move(self.commentField.parent().pos())
-        self.comment.show()
+        # Create comment label - comment 관련 위젯도 중앙 위젯 설정으로 인해 숨겨짐
+        # self.comment = Comment()
+        # self.comment.setParent(self.moveListWidget)
+        # self.comment.setEnabled(False)
+        # self.comment.move(self.commentField.parent().pos())
+        # self.comment.show()
 
         # Set piece icons
         pieces = ['rP', 'rN', 'rR', 'rB', 'rQ', 'rK',
@@ -79,22 +98,30 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         for piece in pieces:
             self.view.setPiece(piece, QIcon('resources/img/pieces/' + piece + '.svg'))
 
-        # Set view size based on board square size
-        self.view.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        self.view.setSquareSize(QSize(50, 50))
-        self.layout().setSizeConstraint(QLayout.SetFixedSize)
+        # Configure self.view to be the main, expanding content
+        self.view.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        # self.view.setSquareSize(QSize(50, 50)) # 이 라인을 주석 처리 또는 삭제
 
-        # Connect signals
+        # Set self.view as the central widget
+        self.setCentralWidget(self.view)
+
+        # Hide other main window components
+        if self.menuBar():
+            self.menuBar().hide()
+        # if self.statusBar(): # 상태바는 이미 위에서 주석 처리됨
+        #     self.statusBar().hide()
+
+        # Connect signals (타이머 관련 시그널 연결은 주석 처리)
         self.view.clicked.connect(self.viewClicked)
-        self.algorithm.boardChanged.connect(self.view.setBoard)  # If algorithm changes board, view must update board
+        self.algorithm.boardChanged.connect(self.view.setBoard)
         self.algorithm.currentPlayerChanged.connect(self.view.highlightPlayer)
         self.algorithm.currentPlayerChanged.connect(self.view.highlightChecks)
-        self.algorithm.currentPlayerChanged.connect(self.view.setCurrentPlayer)  # For drag-drop
-        self.algorithm.moveTextChanged.connect(self.updateMoveList)
-        self.algorithm.selectMove.connect(self.selectMove)
-        self.algorithm.removeMoveSelection.connect(self.removeMoveSelection)
-        self.algorithm.fen4Generated.connect(self.fenField.setPlainText)
-        self.algorithm.pgn4Generated.connect(self.pgnField.setPlainText)
+        self.algorithm.currentPlayerChanged.connect(self.view.setCurrentPlayer)
+        self.algorithm.moveTextChanged.connect(self.updateMoveList) # updateMoveList도 숨겨진 위젯을 다루므로 주석처리 고려
+        self.algorithm.selectMove.connect(self.selectMove) # moveListWidget 관련 기능 주석처리 고려
+        self.algorithm.removeMoveSelection.connect(self.removeMoveSelection) # moveListWidget 관련 기능 주석처리 고려
+        self.algorithm.fen4Generated.connect(self.fenField.setPlainText) # fenField 숨겨짐
+        self.algorithm.pgn4Generated.connect(self.pgnField.setPlainText) # pgnField 숨겨짐
         self.algorithm.removeHighlight.connect(self.view.removeHighlightsOfColor)
         self.view.playerNameEdited.connect(self.algorithm.updatePlayerNames)
         self.view.playerRatingEdited.connect(self.algorithm.updatePlayerRating)
@@ -103,90 +130,101 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.algorithm.addHighlight.connect(self.addHighlight)
         self.view.dragStarted.connect(self.selectDragStartSquare)
         self.view.pieceMoved.connect(self.movePiece)
-        self.commentField.focusOut.connect(self.setComment)
+        # self.commentField.focusOutEvent = lambda event: self.setComment() # commentField 숨겨짐
         self.algorithm.cannotReadPgn4.connect(self.pgnParseError)
+        self.algorithm.gameOver.connect(self.show_game_over)
 
-        # Connect menu actions
-        self.actionCheck_for_Updates.triggered.connect(self.checkUpdate)
-        self.actionPreferences.triggered.connect(self.showPreferences)
-        self.actionQuit.triggered.connect(self.close)
-        self.actionNew_Game.triggered.connect(self.algorithm.newGame)
-        self.actionNew_Game.triggered.connect(self.view.repaint)  # Forced repaint
-        self.actionNew_Game.triggered.connect(self.moveListWidget.clear)
-        self.actionNew_Game.triggered.connect(self.resetComment)
-        self.actionLoad_Game.triggered.connect(self.openFileNameDialog)
-        self.actionSave_Game_As.triggered.connect(self.saveFileDialog)
-        self.actionCopy_FEN4.triggered.connect(self.fenField.selectAll)
-        self.actionCopy_FEN4.triggered.connect(self.fenField.copy)
-        self.actionCopy_FEN4.triggered.connect(self.repaint)
-        self.actionPaste_FEN4.triggered.connect(self.fenField.clear)
-        self.actionPaste_FEN4.triggered.connect(self.fenField.paste)
-        self.actionPaste_FEN4.triggered.connect(self.repaint)
-        self.actionRotate_Board_Left.triggered.connect(lambda: self.view.rotateBoard(-1))
-        self.actionRotate_Board_Right.triggered.connect(lambda: self.view.rotateBoard(1))
-        self.actionFlip_Board.triggered.connect(lambda: self.view.rotateBoard(2))
-        self.actionAbout.triggered.connect(self.about)
-        self.actionAbout_PyQt.triggered.connect(self.aboutPyQt)
-        self.actionQuick_Reference.triggered.connect(self.quickReference)
-        self.actionReport_Bug.triggered.connect(self.reportBug)
+        # Connect menu actions (메뉴바가 숨겨졌으므로, 메뉴 액션 연결도 필요 없을 수 있음)
+        # ... (기존 메뉴 액션 연결 코드) ...
 
-        # Connect button actions
-        self.boardResetButton.clicked.connect(self.algorithm.newGame)
-        self.boardResetButton.clicked.connect(self.view.repaint)  # Forced repaint
-        self.boardResetButton.clicked.connect(self.moveListWidget.clear)
-        self.boardResetButton.clicked.connect(self.resetComment)
-        self.boardNPromoteButton.clicked.connect(lambda: self.algorithm.promoteValue('N'))
-        self.boardRPromoteButton.clicked.connect(lambda: self.algorithm.promoteValue('R'))
-        self.boardBPromoteButton.clicked.connect(lambda: self.algorithm.promoteValue('B'))
-        self.boardQPromoteButton.clicked.connect(lambda: self.algorithm.promoteValue('Q'))
-        self.setFenButton.clicked.connect(self.setFen4)
-        self.loadPgnButton.clicked.connect(self.openFileNameDialog)
-        self.savePgnButton.clicked.connect(self.saveFileDialog)
-        self.prevMoveButton.clicked.connect(self.algorithm.prevMove)
-        self.prevMoveButton.clicked.connect(self.view.repaint)
-        self.nextMoveButton.clicked.connect(self.algorithm.nextMove)
-        self.nextMoveButton.clicked.connect(self.view.repaint)
-        self.firstMoveButton.clicked.connect(self.algorithm.firstMove)
-        self.firstMoveButton.clicked.connect(self.view.repaint)
-        self.lastMoveButton.clicked.connect(self.algorithm.lastMove)
-        self.lastMoveButton.clicked.connect(self.view.repaint)
-        self.comment.clicked.connect(self.editComment)
+        # Connect button actions (대부분의 버튼이 숨겨졌으므로, 관련 연결 코드 주석 처리 필요)
+        # ... (기존 버튼 액션 연결 코드) ...
+        # self.comment.clicked.connect(self.editComment) # comment 숨겨짐
 
         # Start new game
         self.algorithm.newGame()
+
+        # Start BGM
+        self.sound_manager.start_bgm()
 
         # Initialize objects
         self.clickPoint = QPoint()
         self.selectedSquare = 0
         self.moveHighlight = 0
 
-        self.algorithm.currentPlayerChanged.connect(self.delayed_game_loop)
-        self.timer.timeout.connect(self.game_loop)
-        self.timer.start(100)
+        # Game loop timer (타이머 기능 제거로 주석 처리)
+        # self.game_loop_timer = QTimer(self)
+        # self.game_loop_timer.setSingleShot(True)
+        # self.algorithm.currentPlayerChanged.connect(self.delayed_game_loop)
+        # self.game_loop_timer.timeout.connect(self.game_loop)
+        # self.game_loop_timer.start(100)
 
-    def delayed_game_loop(self):
-      timer = QTimer()
-      timer.setSingleShot(True)
-      timer.timeout.connect(self.game_loop)
-      self.timer.start(100)
+        # Connect timer reset to new game action (타이머 기능 제거로 주석 처리)
+        # self.actionNew_Game.triggered.connect(self.reset_timers)
+        # self.boardResetButton.clicked.connect(self.reset_timers)
 
-    def game_loop(self):
-      if self.moves != None:
-        for move in self.moves:
-          self.algorithm.makeMove(*move)
-        self.moves = None
-      if self.algorithm.currentPlayer in self.algorithm.aiActorPos:
-          for actor in self.algorithm.actors:
-              if self.algorithm.currentPlayer == actor[0]:
-                  fromFile, fromRank, toFile, toRank = actor[1].make_move(self.algorithm.board)
-                  # print(f'({fromFile}, {fromRank}, {toFile}, {toRank}),')
-                  self.algorithm.makeMove(fromFile, fromRank, toFile, toRank)
-      if self.algorithm.currentPlayer == self.algorithm.NoPlayer:
-          curr_player = self.algorithm.playerQueue[0]
-          if curr_player in self.algorithm.aiActorPos:
-              for actor in self.algorithm.actors:
-                  if curr_player == actor[0]:
-                      self.algorithm.promoteValue(actor[1].promote_pawn(self.algorithm.board, self.algorithm.promoteSpace))
+        # Print keyboard shortcuts info
+        print("\n=== 체스 게임 키보드 단축키 ===")
+        print("S: 체스 말 놓는 소리 켜기/끄기")
+        print("B: 중세 BGM 켜기/끄기")
+        print("M: BGM 일시정지/재개")
+        print("+/=: BGM 볼륨 증가")
+        print("-: BGM 볼륨 감소")
+        print("방향키: 게임 진행/되돌리기")
+        print("==============================\n")
+
+    # def delayed_game_loop(self): # 타이머 기능 제거로 주석 처리
+    #     """Delays the game loop to ensure proper timing."""
+    #     timer = QTimer()
+    #     timer.setSingleShot(True)
+    #     timer.timeout.connect(self.game_loop)
+    #     self.game_loop_timer.start(100)
+
+    # def game_loop(self): # 타이머 기능 제거로 주석 처리
+    #     """Handles the game loop for AI moves."""
+    #     if self.moves != None:
+    #         for move in self.moves:
+    #             self.algorithm.makeMove(*move)
+    #         self.moves = None
+    #     if self.algorithm.currentPlayer in self.algorithm.aiActorPos:
+    #         for actor in self.algorithm.actors:
+    #             if self.algorithm.currentPlayer == actor[0]:
+    #                 fromFile, fromRank, toFile, toRank = actor[1].make_move(self.algorithm.board)
+    #                 self.algorithm.makeMove(fromFile, fromRank, toFile, toRank)
+    #     if self.algorithm.currentPlayer == self.algorithm.NoPlayer:
+    #         curr_player = self.algorithm.playerQueue[0]
+    #         if curr_player in self.algorithm.aiActorPos:
+    #             for actor in self.algorithm.actors:
+    #                 if curr_player == actor[0]:
+    #                     self.algorithm.promoteValue(actor[1].promote_pawn(self.algorithm.board, self.algorithm.promoteSpace))
+    
+    # 타이머 및 관련 UI가 제거되었으므로 다음 함수들도 주석 처리합니다.
+    # def create_timer_labels(self):
+    # ... (함수 내용) ...
+    # def update_timer(self):
+    # ... (함수 내용) ...
+    # def reset_timers(self):
+    # ... (함수 내용) ...
+
+    # updateMoveList, selectMove, removeMoveSelection 등도 숨겨진 위젯을 다루므로
+    # 필요 없다면 주석 처리하거나, self.view만 사용하는 형태로 수정해야 합니다.
+    # 예시:
+    def updateMoveList(self, moveText): # 실제로는 moveListWidget이 없으므로 이 함수는 호출되지 않거나, 다른 방식으로 로그를 처리해야 함
+        # self.moveListWidget.addItem(RowItem(moveText))
+        # self.moveListWidget.scrollToBottom()
+        print(f"Move: {moveText}") # 간단히 콘솔에 출력하는 예시
+
+    def selectMove(self, key):
+        # item = self.moveListWidget.item(key)
+        # if item:
+        #     item.setSelected(True)
+        #     self.moveListWidget.scrollToItem(item)
+        print(f"Select move: {key}") # 콘솔 출력 예시
+
+    def removeMoveSelection(self):
+        # for item in self.moveListWidget.selectedItems():
+        #     item.setSelected(False)
+        print("Remove move selection") # 콘솔 출력 예시
 
     def checkUpdate(self):
         """Checks if update is available and shows update dialog."""
@@ -377,6 +415,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             if not moved:
                 self.view.removeHighlight(self.selectedSquare)
             else:
+                # Play chess move sound when piece is successfully moved
+                self.sound_manager.play_move_sound()
+                
                 self.moveHighlight = self.view.SquareHighlight(square.x(), square.y(), color)
                 self.view.addHighlight(self.moveHighlight)
                 self.view.highlightChecks()
@@ -434,6 +475,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.view.removeHighlight(self.selectedSquare)
             self.view.maskedSquare = None
         else:
+            # Play chess move sound when piece is successfully moved
+            self.sound_manager.play_move_sound()
+            
             self.moveHighlight = self.view.SquareHighlight(toSquare.x(), toSquare.y(), color)
             self.view.addHighlight(self.moveHighlight)
             self.view.highlightChecks()
@@ -463,6 +507,38 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self.algorithm.firstMove()
         if event.key() == Qt.Key_Down:
             self.algorithm.lastMove()
+        if event.key() == Qt.Key_S:
+            # Toggle sound on/off
+            current_state = self.sound_manager.is_sound_enabled()
+            self.sound_manager.set_sound_enabled(not current_state)
+            status = "켜짐" if not current_state else "꺼짐"
+            print(f"사운드: {status}")
+        if event.key() == Qt.Key_B:
+            # Toggle BGM on/off
+            current_state = self.sound_manager.is_bgm_enabled()
+            self.sound_manager.set_bgm_enabled(not current_state)
+            status = "켜짐" if not current_state else "꺼짐"
+            print(f"BGM: {status}")
+        if event.key() == Qt.Key_M:
+            # Toggle BGM pause/resume
+            if self.sound_manager.bgm_player and self.sound_manager.bgm_player.state() == self.sound_manager.bgm_player.PlayingState:
+                self.sound_manager.pause_bgm()
+                print("BGM 일시정지")
+            else:
+                self.sound_manager.resume_bgm()
+                print("BGM 재개")
+        if event.key() == Qt.Key_Plus or event.key() == Qt.Key_Equal:
+            # Increase volume
+            current_volume = self.sound_manager.get_bgm_volume()
+            new_volume = min(1.0, current_volume + 0.1)
+            self.sound_manager.set_bgm_volume(new_volume)
+            print(f"BGM 볼륨: {int(new_volume * 100)}%")
+        if event.key() == Qt.Key_Minus:
+            # Decrease volume
+            current_volume = self.sound_manager.get_bgm_volume()
+            new_volume = max(0.0, current_volume - 0.1)
+            self.sound_manager.set_bgm_volume(new_volume)
+            print(f"BGM 볼륨: {int(new_volume * 100)}%")
         self.view.keyModifier = event.key()
 
     def keyReleaseEvent(self, event):
@@ -617,292 +693,24 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 font-family: Trebuchet MS;
                 """)
 
-    def updateMoveList(self, moveText):
-        """Updates move list based on movetext."""
-        main = self  # used to access outer class in inner class
-
-        class Row(QListWidget):
-            """Custom QListWidget class for rows in move list."""
-            def __init__(self):
-                super().__init__()
-                self.setFlow(QListView.LeftToRight)
-                self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-                self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-                self.setWrapping(True)
-                self.setFrameShape(QFrame.NoFrame)
-                self.setFocusPolicy(Qt.NoFocus)
-                self.setContextMenuPolicy(Qt.CustomContextMenu)
-                self.customContextMenuRequested.connect(self.showContextMenu)
-                self.actionDelete = QAction(None)
-                self.actionDelete.setObjectName("actionDelete")
-                self.actionDelete.setText('Delete move')
-                self.actionDelete.triggered.connect(self.deleteMove)
-                self.actionPromote = QAction(None)
-                self.actionPromote.setObjectName("actionPromote")
-                self.actionPromote.setText('Promote variation')
-                self.actionPromote.triggered.connect(self.promoteVariation)
-                self.moveIndex = 0
-                self.setStyleSheet("""
-                    QListWidget {color: rgb(0, 0, 0); font-family: Trebuchet MS; font-weight: bold; font-size: 12;
-                    padding: 2px; margin: 0px;}
-                    QListWidget::item:selected {background-color: rgba(255, 255, 0, 0.3);}
-                    """)
-
-            def sizeHint(self):
-                """Implements sizeHint() method."""
-                width = 290
-                rows = 1
-                rowWidth = 0
-                for index in range(self.count()):
-                    rowWidth += self.item(index).sizeHint().width()
-                    if rowWidth > width:
-                        rows += 1
-                        rowWidth = self.item(index).sizeHint().width()
-                fm = QFontMetrics(QFont('Trebuchet MS', 12, QFont.Bold))
-                padding = 2  # Row padding
-                height = fm.height() * rows + 2 * padding
-                return QSize(width, height)
-
-            def showContextMenu(self, pos):
-                """Shows context menu when right-clicking a move in the move list."""
-                item = self.itemAt(pos)
-                char = item.text()[0]
-                if char.isdigit() or char == '(' or char == ')' or char == '.':
-                    item.setSelected(False)
-                    return
-                else:
-                    position = self.mapToGlobal(pos)
-                    menu = QMenu()
-                    menu.addAction(self.actionPromote)
-                    menu.addAction(self.actionDelete)
-                    menu.exec_(position)
-
-            def promoteVariation(self):
-                """Promotes variation that selected move is part of."""
-                rowIndex = self.currentRow()
-                item = self.item(rowIndex)
-                moveIndex = None
-                count = 0
-                for index in range(main.moveListWidget.count()):
-                    row = main.moveListWidget.itemWidget(main.moveListWidget.item(index))
-                    if row != self:
-                        count += row.count()
-                    elif row == self:
-                        itemIndex = 0
-                        while itemIndex < row.count():
-                            baseItem = self.item(itemIndex)
-                            char = baseItem.text()[0]
-                            if char.isdigit() or char == '(' or char == ')' or char == '.':
-                                itemIndex += 1
-                            else:
-                                baseIndex = count + itemIndex
-                                break
-                        count += rowIndex
-                        moveIndex = count
-                key = (moveIndex, item.text())
-                baseKey = (baseIndex, baseItem.text())
-                currentNode = main.algorithm.moveDict[key]
-                baseNode = main.algorithm.moveDict[baseKey]  # first node of variation
-                parentNode = baseNode.parent
-                # Set position to move that was selected
-                actions = currentNode.pathFromRoot()
-                main.algorithm.firstMove()
-                for action in actions:
-                    exec('main.algorithm.' + action)
-                # Update move tree
-                parentNode.children.remove(baseNode)
-                parentNode.children.insert(0, baseNode)  # moving node to index 0 makes it main line
-                # Update movetext, dictionary, FEN4 and PGN4
-                main.algorithm.updateMoveText()
-                main.algorithm.getFen4()
-                main.algorithm.getPgn4()
-
-            def deleteMove(self):
-                """Deletes move from the move list and updates the position."""
-                rowIndex = self.currentRow()
-                item = self.item(rowIndex)
-                moveIndex = None
-                count = 0
-                for index in range(main.moveListWidget.count()):
-                    row = main.moveListWidget.itemWidget(main.moveListWidget.item(index))
-                    if row != self:
-                        count += row.count()
-                    elif row == self:
-                        count += rowIndex
-                        moveIndex = count
-                key = (moveIndex, item.text())
-                currentNode = main.algorithm.moveDict[key]
-                # Set position to move preceding deleted move
-                actions = currentNode.parent.pathFromRoot()
-                main.algorithm.firstMove()
-                for action in actions:
-                    exec('main.algorithm.' + action)
-                # Delete move and all following moves
-                for i in reversed(range(rowIndex, self.count())):  # NOTE: reversed range, because modified during loop
-                    move = self.takeItem(i)
-                    del move
-                # Delete node from move tree and update movetext, dictionary, FEN4 and PGN4
-                main.algorithm.currentMove.children.remove(currentNode)
-                main.algorithm.updateMoveText()
-                main.algorithm.getFen4()
-                main.algorithm.getPgn4()
-
-        class RowItem(QListWidgetItem):
-            """Custom QListWidgetItem class for row items in move list rows."""
-            def __init__(self, text):
-                super().__init__(text)
-                self.setTextAlignment(Qt.AlignCenter)
-
-            def sizeHint(self):
-                """Implements sizeHint() method."""
-                fm = QFontMetrics(QFont('Trebuchet MS', 12, QFont.Bold))
-                spacing = 10  # TODO get rid of the item spacing somehow
-                width = fm.width(self.text()) + 2 * spacing
-                height = fm.height()
-                return QSize(width, height)
-
-        self.moveListWidget.clear()
-        tokens = self.algorithm.split_(moveText)
-        row = Row()
-        row.itemClicked.connect(lambda item, this=row: self.moveListItemClicked(item, this))
-        level = 0
-        for token in tokens:
-            rowItem = RowItem(token)
-            rowItem.setSizeHint(rowItem.sizeHint())  # Update size hack
-            if token[0] == '{':
-                # Comment
-                self.commentField.setPlainText(token[1:-1])
-            elif token == '(':
-                # Start of new variation
-                level += 1
-                if not row.count() == 0:
-                    listItem = QListWidgetItem(self.moveListWidget)
-                    listItem.setSizeHint(row.sizeHint())
-                    self.moveListWidget.addItem(listItem)
-                    self.moveListWidget.setItemWidget(listItem, row)
-                row = Row()
-                row.itemClicked.connect(lambda item, this=row: self.moveListItemClicked(item, this))
-                if level == 1:
-                    row.setStyleSheet("""
-                        QListWidget {color: rgb(100, 100, 100); font-family: Trebuchet MS; font-weight: bold; 
-                        font-size: 12; background-color: rgb(240, 240, 240); padding: 2px; margin: 0px;}
-                        QListWidget::item:selected {color: rgb(100, 100, 100); 
-                        background-color: rgba(255, 255, 0, 0.3);}
-                        """)
-                elif level > 1:
-                    row.setStyleSheet("""
-                        QListWidget {color: rgb(150, 150, 150); font-family: Trebuchet MS; font-weight: bold; 
-                        font-size: 12; background-color: rgb(240, 240, 240); padding: 2px; margin: 0px;}
-                        QListWidget::item:selected {color: rgb(150, 150, 150); 
-                        background-color: rgba(255, 255, 0, 0.3);}
-                        """)
-                else:
-                    # Do nothing. Main line uses default stylesheet
-                    pass
-                row.addItem(rowItem)
-            elif token == ')':
-                # End of variation
-                level -= 1
-                row.addItem(rowItem)
-                listItem = QListWidgetItem(self.moveListWidget)
-                listItem.setSizeHint(row.sizeHint())
-                self.moveListWidget.addItem(listItem)
-                self.moveListWidget.setItemWidget(listItem, row)
-                row = Row()
-                row.itemClicked.connect(lambda item, this=row: self.moveListItemClicked(item, this))
-                if level == 1:
-                    row.setStyleSheet("""
-                        QListWidget {color: rgb(100, 100, 100); font-family: Trebuchet MS; font-weight: bold; 
-                        font-size: 12; background-color: rgb(240, 240, 240); padding: 2px; margin: 0px;}
-                        QListWidget::item:selected {color: rgb(100, 100, 100); 
-                        background-color: rgba(255, 255, 0, 0.3);}
-                        """)
-                elif level > 1:
-                    row.setStyleSheet("""
-                        QListWidget {color: rgb(150, 150, 150); font-family: Trebuchet MS; font-weight: bold; 
-                        font-size: 12; background-color: rgb(240, 240, 240); padding: 2px; margin: 0px;}
-                        QListWidget::item:selected {color: rgb(150, 150, 150); 
-                        background-color: rgba(255, 255, 0, 0.3);}
-                        """)
-                else:
-                    # Do nothing. Main line uses default stylesheet
-                    pass
-            else:
-                row.addItem(rowItem)
-        listItem = QListWidgetItem(self.moveListWidget)
-        listItem.setSizeHint(row.sizeHint())
-        self.moveListWidget.addItem(listItem)
-        self.moveListWidget.setItemWidget(listItem, row)
-
-    def moveListItemClicked(self, clickedItem, clickedRow):
-        """Handles move list click event to set game state to clicked move."""
-        char = clickedItem.text()[0]
-        # If clicked item is not a move, remove selection
-        if char.isdigit() or char == '(' or char == ')' or char == '.':
-            clickedItem.setSelected(False)
+    def show_game_over(self, result):
+        """Show game over popup with the result."""
+        if result == self.algorithm.Team1Wins:
+            message = "Team 1 (Red & Yellow) wins by checkmate!"
+        elif result == self.algorithm.Team2Wins:
+            message = "Team 2 (Blue & Green) wins by checkmate!"
+        elif result == self.algorithm.Team1Wins_Timeout:
+            message = "Team 1 (Red & Yellow) wins by Timeout!"
+        elif result == self.algorithm.Team2Wins_Timeout:
+            message = "Team 2 (Blue & Green) wins by Timeout!"
         else:
-            # Remove previous selection from other row, if any
-            moveIndex = None
-            count = 0
-            for index in range(self.moveListWidget.count()):
-                row = self.moveListWidget.itemWidget(self.moveListWidget.item(index))
-                if row != clickedRow:
-                    count += row.count()
-                    if row.selectedItems():
-                        for item in row.selectedItems():
-                            item.setSelected(False)
-                elif row == clickedRow:
-                    count += row.row(clickedItem)
-                    moveIndex = count
-
-            # Get node from dictionary and do actions to get to node from root
-            key = (moveIndex, clickedItem.text())
-            clickedNode = self.algorithm.moveDict[key]
-            if clickedNode:
-                actions = clickedNode.pathFromRoot()
-                self.algorithm.firstMove()
-                for action in actions:
-                    exec('self.algorithm.' + action)
-
-    def selectMove(self, key):
-        """Makes current move selected in the move list."""
-        self.showComment(self.algorithm.moveDict[key])
-        if self.algorithm.currentMove.name != 'root':
-            self.comment.setEnabled(True)
-        else:
-            self.comment.setEnabled(False)
-        moveIndex = key[0]
-        index = 0
-        notFound = True
-        while notFound:
-            row = self.moveListWidget.itemWidget(self.moveListWidget.item(index))
-            rowLength = row.count()
-            if moveIndex > rowLength - 1:
-                moveIndex -= rowLength
-                index += 1
-            else:
-                row.item(moveIndex).setSelected(True)
-                notFound = False
-        # Remove selection from other rows
-        for rowIndex in range(self.moveListWidget.count()):
-            row = self.moveListWidget.itemWidget(self.moveListWidget.item(rowIndex))
-            if rowIndex != index and row.selectedItems:
-                for item in row.selectedItems():
-                    item.setSelected(False)
-
-    def removeMoveSelection(self):
-        """Removes move selection in move list."""
-        for index in range(self.moveListWidget.count()):
-            row = self.moveListWidget.itemWidget(self.moveListWidget.item(index))
-            if row.selectedItems():
-                for item in row.selectedItems():
-                    item.setSelected(False)
-
-    def showPreferences(self):
-        """Shows preferences window. Settings are passed to the dialog, modified and then returned."""
-        preferencesDialog = Preferences()
-        if preferencesDialog.exec_():
-            self.statusbar.showMessage('Preferences saved to: ' + SETTINGS.fileName(), 5000)
+            message = "Draw by Stalemate!"
+            
+        QMessageBox.information(self, "Game Over", message)
+        # self.game_timer.stop()  # Stop the timer when game is over
+        
+        # 디버깅을 위한 로그 출력
+        print(f"Game Over: {result}")
 
 
 class Preferences(QDialog, Ui_Preferences):
