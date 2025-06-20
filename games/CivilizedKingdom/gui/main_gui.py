@@ -2,7 +2,7 @@ import sys
 import os
 GAMES_JSON_PATH = os.path.join("data", "game", "games.json")
 from enum import IntEnum
-from PyQt5.QtWidgets import QApplication, QMainWindow, QListWidgetItem, QMessageBox, QPushButton, QLabel, QSpinBox, QDialog, QGraphicsScene, QGraphicsTextItem, QGraphicsProxyWidget
+from PyQt5.QtWidgets import QApplication, QMainWindow, QListWidgetItem, QMessageBox, QPushButton, QLabel, QSpinBox, QDialog, QGraphicsScene, QGraphicsTextItem, QGraphicsProxyWidget, QGroupBox, QLineEdit, QComboBox, QTextEdit, QLayout
 from PyQt5.QtCore import Qt
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtCore import QUrl
@@ -182,6 +182,125 @@ class MainWindow(QMainWindow):
         self.setup_playmap_webview()  # 웹맵 세팅 함수 호출
         # 오버레이 항상 보이게 설정
         self.ui.frame_overlay.setVisible(True)
+        
+        # 창 크기를 화면에 맞게 조정
+        self.resize(1280, 800)
+        
+        # 전체 화면용 스타일시트 적용
+        self.setStyleSheet("""
+            QMainWindow {
+                background-color: #2b2b2b;
+            }
+            QPushButton {
+                font-size: 16px;
+                padding: 12px;
+                min-height: 50px;
+                background-color: #4a4a4a;
+                color: white;
+                border: 2px solid #666;
+                border-radius: 8px;
+            }
+            QPushButton:hover {
+                background-color: #5a5a5a;
+                border-color: #777;
+            }
+            QPushButton:pressed {
+                background-color: #3a3a3a;
+            }
+            QTextEdit, QTextBrowser {
+                font-size: 14px;
+                padding: 8px;
+                background-color: #3a3a3a;
+                color: white;
+                border: 1px solid #555;
+                border-radius: 5px;
+            }
+            QListWidget {
+                font-size: 14px;
+                background-color: #3a3a3a;
+                color: white;
+                border: 1px solid #555;
+                border-radius: 5px;
+                padding: 5px;
+            }
+            QListWidget::item {
+                padding: 8px;
+                border-bottom: 1px solid #555;
+            }
+            QListWidget::item:selected {
+                background-color: #5a5a5a;
+            }
+            QVBoxLayout, QHBoxLayout {
+                margin: 10px;
+                spacing: 10px;
+            }
+            
+            /* 캐릭터 생성 페이지 전용 스타일 */
+            QGroupBox {
+                font-size: 12px;
+                font-weight: bold;
+                color: white;
+                border: 1px solid #555;
+                border-radius: 5px;
+                margin-top: 10px;
+                padding-top: 10px;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                left: 10px;
+                padding: 0 5px 0 5px;
+            }
+            QLabel {
+                font-size: 12px;
+                color: white;
+            }
+            QLineEdit, QComboBox {
+                font-size: 12px;
+                padding: 5px;
+                background-color: #3a3a3a;
+                color: white;
+                border: 1px solid #555;
+                border-radius: 3px;
+                min-height: 25px;
+            }
+            QSpinBox {
+                font-size: 12px;
+                padding: 3px;
+                background-color: #3a3a3a;
+                color: white;
+                border: 1px solid #555;
+                border-radius: 3px;
+                min-height: 25px;
+                min-width: 60px;
+            }
+            
+            /* 캐릭터 생성 페이지 하단 버튼들 */
+            #spell_button, #p4_goback_btn, #p4_goon_btn {
+                font-size: 14px;
+                padding: 8px;
+                min-height: 35px;
+                max-height: 35px;
+            }
+        """)
+        
+        # 레이아웃 여백 조정
+        self.ui.centralwidget.layout().setContentsMargins(20, 20, 20, 20)
+        self.ui.centralwidget.layout().setSpacing(15)
+        
+        # 전체 화면으로 설정
+        self.showFullScreen()
+
+    def keyPressEvent(self, event):
+        """키보드 이벤트 처리"""
+        if event.key() == Qt.Key_Escape:
+            # ESC 키로 전체 화면 해제
+            if self.isFullScreen():
+                self.showNormal()
+                print("전체 화면 해제")
+            else:
+                self.showFullScreen()
+                print("전체 화면으로 전환")
+        super().keyPressEvent(event)
 
     def switch_page(self, page: Page):
         self.ui.stack_page.setCurrentIndex(page.value)
@@ -213,6 +332,67 @@ class MainWindow(QMainWindow):
         # 스펠 선택 초기화
         self.selected_spells = []
         self.ui.spell_button.setEnabled(True)
+        
+        # Character creation page - make it even smaller
+        if hasattr(self, 'ui') and hasattr(self.ui, 'makechar'):
+            # Make buttons even smaller
+            for button in self.ui.makechar.findChildren(QPushButton):
+                button.setFixedSize(80, 25)  # Even smaller buttons
+                font = button.font()
+                font.setPointSize(8)  # Smaller font
+                button.setFont(font)
+                button.setStyleSheet("""
+                    QPushButton {
+                        background-color: #4a4a4a;
+                        color: white;
+                        border: 1px solid #666;
+                        border-radius: 3px;
+                        padding: 2px;
+                        font-weight: bold;
+                    }
+                    QPushButton:hover {
+                        background-color: #5a5a5a;
+                    }
+                    QPushButton:pressed {
+                        background-color: #3a3a3a;
+                    }
+                """)
+            
+            # Make text areas even smaller
+            for text_edit in self.ui.makechar.findChildren(QTextEdit):
+                text_edit.setFixedHeight(60)  # Even smaller height
+                font = text_edit.font()
+                font.setPointSize(9)  # Smaller font
+                text_edit.setFont(font)
+                text_edit.setStyleSheet("""
+                    QTextEdit {
+                        background-color: #2a2a2a;
+                        color: white;
+                        border: 1px solid #555;
+                        border-radius: 3px;
+                        padding: 3px;
+                    }
+                """)
+            
+            # Make labels smaller
+            for label in self.ui.makechar.findChildren(QLabel):
+                font = label.font()
+                font.setPointSize(9)  # Smaller font
+                label.setFont(font)
+                label.setStyleSheet("""
+                    QLabel {
+                        color: white;
+                        background-color: transparent;
+                        padding: 1px;
+                    }
+                """)
+            
+            # Adjust layout spacing
+            for layout in self.ui.makechar.findChildren(QLayout):
+                if hasattr(layout, 'setSpacing'):
+                    layout.setSpacing(2)  # Even smaller spacing
+                if hasattr(layout, 'setContentsMargins'):
+                    layout.setContentsMargins(5, 5, 5, 5)  # Even smaller margins
 
     def refresh_game_list(self):
         self.ui.p2_game_list.clear()
@@ -275,12 +455,12 @@ class MainWindow(QMainWindow):
             "Paladin", "Ranger", "Rogue", "Sorcerer", "Warlock", "Wizard"
         ]
         layout = self.ui.class_grid
-        layout.setSpacing(20)  # Added spacing between buttons
-        layout.setContentsMargins(20, 20, 20, 20)  # Added margins
+        layout.setSpacing(10)  # 간격 줄임
+        layout.setContentsMargins(10, 10, 10, 10)  # 여백 줄임
         for i, class_name in enumerate(classes):
             button = QPushButton(class_name)
-            button.setMinimumSize(300, 70)  # Increased button size
-            button.setMaximumSize(300, 70)  # Increased button size
+            button.setMinimumSize(150, 40)  # 버튼 크기 줄임
+            button.setMaximumSize(150, 40)  # 버튼 크기 줄임
             button.setCheckable(True)
             button.clicked.connect(lambda checked, c=class_name: self.select_class(c))
             layout.addWidget(button, i // 6, i % 6)
@@ -321,12 +501,12 @@ class MainWindow(QMainWindow):
             'Outlander', 'Urchin', 'Charlatan', 'Haunted One'
         ]
         layout = self.ui.background_grid
-        layout.setSpacing(20)  # Added spacing between buttons
-        layout.setContentsMargins(20, 20, 20, 20)  # Added margins
+        layout.setSpacing(10)  # 간격 줄임
+        layout.setContentsMargins(10, 10, 10, 10)  # 여백 줄임
         for i, bg in enumerate(backgrounds):
             button = QPushButton(bg)
-            button.setMinimumSize(300, 70)  # Increased button size
-            button.setMaximumSize(300, 70)  # Increased button size
+            button.setMinimumSize(150, 40)  # 버튼 크기 줄임
+            button.setMaximumSize(150, 40)  # 버튼 크기 줄임
             button.setCheckable(True)
             button.clicked.connect(lambda checked, b=bg: self.select_background(b))
             layout.addWidget(button, i // 6, i % 6)

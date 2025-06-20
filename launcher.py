@@ -17,6 +17,21 @@ class GameLauncher(QMainWindow):
         self.games = []
         self.current_game = None
         self.initUI()
+        
+        # 전체 화면으로 설정
+        self.showFullScreen()
+
+    def keyPressEvent(self, event):
+        """키보드 이벤트 처리"""
+        if event.key() == Qt.Key_Escape:
+            # ESC 키로 전체 화면 해제
+            if self.isFullScreen():
+                self.showNormal()
+                print("전체 화면 해제")
+            else:
+                self.showFullScreen()
+                print("전체 화면으로 전환")
+        super().keyPressEvent(event)
 
     def initUI(self):
         central_widget = QWidget()
@@ -363,6 +378,12 @@ class GameLauncher(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    
+    # 키보드 단축키 안내 출력
+    print("\n=== 게임 런처 키보드 단축키 ===")
+    print("ESC: 전체 화면 켜기/끄기")
+    print("==============================\n")
+    
     launcher = GameLauncher()
     launcher.show()
     sys.exit(app.exec_())

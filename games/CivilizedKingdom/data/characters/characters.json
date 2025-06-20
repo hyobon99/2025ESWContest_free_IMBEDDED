@@ -263,5 +263,29 @@
     "level": 1,
     "experience": 0,
     "game_id": "2025-05-21 01:08:27"
+  },
+  "2222__2025-06-21 02:47:34": {
+    "name": "2222",
+    "class": "Cleric",
+    "race": "Halfling",
+    "subrace": "Lightfoot",
+    "background": "Hermit",
+    "abilities": {
+      "Strength": 10,
+      "Dexterity": 10,
+      "Constitution": 10,
+      "Intelligence": 10,
+      "Wisdom": 10,
+      "Charisma": 10
+    },
+    "spells": [
+      "spare-the-dying",
+      "thaumaturgy",
+      "guiding-bolt",
+      "inflict-wounds"
+    ],
+    "level": 1,
+    "experience": 0,
+    "game_id": "2025-06-21 02:47:34"
   }
 }
