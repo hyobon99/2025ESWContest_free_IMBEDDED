@@ -7,6 +7,10 @@ from PyQt5.QtCore import Qt, QTimer, pyqtSignal, QThread
 from PyQt5.QtGui import QFont, QPainter, QPen, QColor, QPixmap
 import serial
 import numpy as np
+import pyautogui
+
+# pyautogui 설정
+pyautogui.FAILSAFE = False
 
 class CalibrationPoint(QFrame):
     """캘리브레이션 포인트를 표시하는 위젯"""
@@ -148,11 +152,114 @@ class CalibrationThread(QThread):
     def stop(self):
         self.running = False
 
+class MouseControlThread(QThread):
+    """마우스 제어를 위한 별도 스레드"""
+    def __init__(self, ser, offset, calibration_matrix):
+        super().__init__()
+        self.ser = ser
+        self.offset = offset
+        self.calibration_matrix = calibration_matrix
+        self.running = True
+        self.NUM_ROWS = 40
+        self.NUM_COLS = 30
+        self.FRAME_SIZE = self.NUM_ROWS * self.NUM_COLS
+        self.TOUCH_THRESHOLD = 30
+        self.SCREEN_W = 1280
+        self.SCREEN_H = 800
+        
+    def run(self):
+        while self.running:
+            try:
+                frame = self.read_frame()
+                if frame is not None:
+                    corr = frame.astype(np.float32) - self.offset
+                    corr = np.clip(corr, 0, 255).astype(np.uint8)
+                    filtered = self.keep_row_col_max_intersection(corr)
+                    
+                    # 터치 감지
+                    peak = self.find_peak(filtered)
+                    if peak:
+                        r, c, v = peak
+                        if v >= self.TOUCH_THRESHOLD:
+                            # 캘리브레이션된 좌표로 변환
+                            screen_coords = self.map_touch_to_screen(r, c)
+                            if screen_coords:
+                                x_px, y_px = screen_coords
+                                pyautogui.moveTo(x_px, y_px)
+                            
+            except Exception as e:
+                print(f"마우스 제어 오류: {e}")
+                
+            time.sleep(0.01)  # 10ms 간격
+    
+    def read_frame(self):
+        raw = self.ser.read(self.FRAME_SIZE)
+        if len(raw) != self.FRAME_SIZE:
+            return None
+        
+        data = np.frombuffer(raw, dtype=np.uint8)
+        frame = np.zeros((self.NUM_ROWS, self.NUM_COLS), dtype=np.uint8)
+        
+        for row in range(self.NUM_ROWS):
+            for mux_ch in range(8):
+                for dev in range(4):
+                    col = dev * 8 + mux_ch
+                    if col >= self.NUM_COLS:
+                        continue
+                    idx = row * self.NUM_COLS + mux_ch * 4 + dev
+                    if idx < len(data):
+                        if col == 15:
+                            frame[row, 23] = data[idx]
+                        elif col == 7:
+                            frame[row, 16] = data[idx]
+                        else:
+                            frame[row, col] = data[idx]
+        
+        return frame
+    
+    def keep_row_col_max_intersection(self, arr):
+        row_max = arr.max(axis=1, keepdims=True)
+        col_max = arr.max(axis=0, keepdims=True)
+        mask = (arr == row_max) & (arr == col_max)
+        return arr * mask
+    
+    def find_peak(self, arr):
+        candidates = sorted(
+            ((v, r, c) for (r, c), v in np.ndenumerate(arr)),
+            key=lambda x: x[0], reverse=True
+        )
+        for value, r, c in candidates:
+            if value < self.TOUCH_THRESHOLD:
+                continue
+            if np.max(arr[r, :]) > value or np.max(arr[:, c]) > value:
+                continue
+            return r, c, value
+        return None
+    
+    def map_touch_to_screen(self, r, c):
+        """터치 좌표를 화면 좌표로 변환"""
+        if self.calibration_matrix is None:
+            return None
+        
+        x_matrix, y_matrix = self.calibration_matrix
+        screen_x = int(np.polyval(x_matrix, r))
+        screen_y = int(np.polyval(y_matrix, c))
+        
+        # 화면 범위 제한
+        screen_x = np.clip(screen_x, 0, self.SCREEN_W-1)
+        screen_y = np.clip(screen_y, 0, self.SCREEN_H-1)
+        
+        return screen_x, screen_y
+    
+    def stop(self):
+        self.running = False
+
 class CalibrationGUI(QMainWindow):
     def __init__(self):
         super().__init__()
         self.ser = None
         self.calibration_thread = None
+        self.mouse_control_thread = None  # 마우스 제어 스레드 추가
         self.current_step = 0
         self.calibration_data = {
             'touch_points': [],
@@ -492,28 +599,44 @@ class CalibrationGUI(QMainWindow):
             
             self.calibration_data['matrix'] = (x_matrix, y_matrix)
             
-            self.status_label.setText('캘리브레이션이 완료되었습니다!')
+            self.status_label.setText('캘리브레이션이 완료되었습니다! 마우스 제어를 시작합니다.')
             self.timer_label.setText('완료')
             self.progress_bar.setValue(4)
+            
+            # 캘리브레이션 스레드 정지
+            if self.calibration_thread:
+                self.calibration_thread.stop()
+                self.calibration_thread.wait()
+            
+            # 마우스 제어 스레드 시작
+            self.mouse_control_thread = MouseControlThread(
+                self.ser, self.offset, self.calibration_data['matrix']
+            )
+            self.mouse_control_thread.start()
+            
+            # GUI 최소화 (마우스 제어가 가능하도록)
+            QTimer.singleShot(3000, self.minimize_window)
+            
         else:
             self.status_label.setText('캘리브레이션에 실패했습니다. 다시 시도해주세요.')
         
-        # 스레드 정리
-        if self.calibration_thread:
-            self.calibration_thread.stop()
-            self.calibration_thread.wait()
-        
-        if self.ser:
-            self.ser.close()
-        
         self.start_button.setEnabled(True)
         self.start_button.setText('다시 시작')
+    
+    def minimize_window(self):
+        """창을 최소화하여 마우스 제어가 가능하도록 함"""
+        self.showMinimized()
+        self.status_label.setText('창이 최소화되었습니다. 터치패드로 마우스를 제어할 수 있습니다.')
     
     def closeEvent(self, event):
         """창 닫을 때 정리"""
         if self.calibration_thread:
             self.calibration_thread.stop()
             self.calibration_thread.wait()
+        
+        if self.mouse_control_thread:
+            self.mouse_control_thread.stop()
+            self.mouse_control_thread.wait()
         
         if self.ser:
             self.ser.close()
