@@ -40,14 +40,14 @@ def main():
       actors = generate_actors([*sys.argv])
     window = MainWindow(actors, moves)
     
-    # Set window size to a reasonable size for 4-player chess
-    window.resize(800, 800)
+    # 전체 화면으로 시작하므로 창 크기 설정 제거
+    # window.resize(800, 800)
     
-    # Center the window on screen
-    screen = QRect(app.desktop().availableGeometry())
-    x = screen.left() + int((screen.width() - window.width()) / 2)
-    y = screen.top() + int((screen.height() - window.height()) / 2)
-    window.move(x, y)
+    # 전체 화면으로 시작하므로 창 중앙 배치 제거
+    # screen = QRect(app.desktop().availableGeometry())
+    # x = screen.left() + int((screen.width() - window.width()) / 2)
+    # y = screen.top() + int((screen.height() - window.height()) / 2)
+    # window.move(x, y)
     
     # Show window normally instead of fullscreen
     window.show()

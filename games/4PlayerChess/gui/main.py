@@ -106,6 +106,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Set self.view as the central widget
         self.setCentralWidget(self.view)
 
+        # 전체 화면으로 설정
+        self.showFullScreen()
+
         # Hide other main window components
         if self.menuBar():
             self.menuBar().hide()
@@ -153,6 +156,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.clickPoint = QPoint()
         self.selectedSquare = 0
         self.moveHighlight = 0
+        
+        # 게임 종료 타이머 추가
+        self.game_exit_timer = QTimer(self)
+        self.game_exit_timer.setSingleShot(True)
+        self.game_exit_timer.timeout.connect(self.close)
 
         # Game loop timer (타이머 기능 제거로 주석 처리)
         # self.game_loop_timer = QTimer(self)
@@ -713,6 +721,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         # 디버깅을 위한 로그 출력
         print(f"Game Over: {result}")
+        
+        # 10초 후 게임 종료
+        print("게임이 10초 후에 자동으로 종료됩니다...")
+        self.game_exit_timer.start(10000)  # 10초 = 10000ms
 
     def show_promotion_dialog(self, player_color, file, rank):
         """폰 승진 다이얼로그를 표시합니다."""
