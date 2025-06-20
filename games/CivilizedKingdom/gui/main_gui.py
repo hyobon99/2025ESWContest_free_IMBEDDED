@@ -82,29 +82,29 @@ class MainWindow(QMainWindow):
         self.selected_spells = []
 
         # 상좌(좌상단) 버튼 3개를 QGraphicsView에 180도 회전시켜 추가
-        self.ui.graphics_topleft_buttons.setMinimumSize(325, 250)  # 컨테이너 크기 절반
+        self.ui.graphics_topleft_buttons.setMinimumSize(220, 180)  # 컨테이너 크기 줄임
         scene_topleft_btns = QGraphicsScene()
         for i, label in enumerate(["행동1", "행동2", "행동3"]):
             btn = QPushButton(label)
-            btn.setMinimumSize(300, 70)  # 버튼 크기 절반
-            btn.setMaximumSize(300, 70)
+            btn.setMinimumSize(200, 50)  # 버튼 크기 줄임
+            btn.setMaximumSize(200, 50)
             proxy = QGraphicsProxyWidget()
             proxy.setWidget(btn)
             proxy.setRotation(180)
-            proxy.setPos(0, i * 90)  # 버튼 간격 절반
+            proxy.setPos(0, i * 60)  # 버튼 간격 줄임
             scene_topleft_btns.addItem(proxy)
         self.ui.graphics_topleft_buttons.setScene(scene_topleft_btns)
         # 상우(우상단) 버튼 3개를 QGraphicsView에 180도 회전시켜 추가
-        self.ui.graphics_topright_buttons.setMinimumSize(325, 250)  # 컨테이너 크기 절반
+        self.ui.graphics_topright_buttons.setMinimumSize(220, 180)  # 컨테이너 크기 줄임
         scene_topright_btns = QGraphicsScene()
         for i, label in enumerate(["행동1", "행동2", "행동3"]):
             btn = QPushButton(label)
-            btn.setMinimumSize(300, 70)
-            btn.setMaximumSize(300, 70)
+            btn.setMinimumSize(200, 50)  # 버튼 크기 줄임
+            btn.setMaximumSize(200, 50)
             proxy = QGraphicsProxyWidget()
             proxy.setWidget(btn)
             proxy.setRotation(180)
-            proxy.setPos(0, i * 90)
+            proxy.setPos(0, i * 60)  # 버튼 간격 줄임
             scene_topright_btns.addItem(proxy)
         self.ui.graphics_topright_buttons.setScene(scene_topright_btns)
 
@@ -143,15 +143,15 @@ class MainWindow(QMainWindow):
         self.ui.graphics_bottomleft_text.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.ui.graphics_bottomleft_text.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         # 좌하(하좌) 버튼 QGraphicsView에 버튼 3개 추가 (회전 없음)
-        self.ui.graphics_bottomleft_buttons.setMinimumSize(325, 250)  # 컨테이너 크기 절반
+        self.ui.graphics_bottomleft_buttons.setMinimumSize(220, 180)  # 컨테이너 크기 줄임
         scene_bottomleft_btns = QGraphicsScene()
         for i, label in enumerate(["행동1", "행동2", "행동3"]):
             btn = QPushButton(label)
-            btn.setMinimumSize(300, 70)
-            btn.setMaximumSize(300, 70)
+            btn.setMinimumSize(200, 50)  # 버튼 크기 줄임
+            btn.setMaximumSize(200, 50)
             proxy = QGraphicsProxyWidget()
             proxy.setWidget(btn)
-            proxy.setPos(0, i * 90)
+            proxy.setPos(0, i * 60)  # 버튼 간격 줄임
             scene_bottomleft_btns.addItem(proxy)
         self.ui.graphics_bottomleft_buttons.setScene(scene_bottomleft_btns)
         self.ui.graphics_bottomleft_buttons.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -164,15 +164,15 @@ class MainWindow(QMainWindow):
         self.ui.graphics_bottomright_text.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.ui.graphics_bottomright_text.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         # 우하(하우) 버튼 QGraphicsView에 버튼 3개 추가 (회전 없음)
-        self.ui.graphics_bottomright_buttons.setMinimumSize(325, 250)  # 컨테이너 크기 절반
+        self.ui.graphics_bottomright_buttons.setMinimumSize(220, 180)  # 컨테이너 크기 줄임
         scene_bottomright_btns = QGraphicsScene()
         for i, label in enumerate(["행동1", "행동2", "행동3"]):
             btn = QPushButton(label)
-            btn.setMinimumSize(300, 70)
-            btn.setMaximumSize(300, 70)
+            btn.setMinimumSize(200, 50)  # 버튼 크기 줄임
+            btn.setMaximumSize(200, 50)
             proxy = QGraphicsProxyWidget()
             proxy.setWidget(btn)
-            proxy.setPos(0, i * 90)
+            proxy.setPos(0, i * 60)  # 버튼 간격 줄임
             scene_bottomright_btns.addItem(proxy)
         self.ui.graphics_bottomright_buttons.setScene(scene_bottomright_btns)
         self.ui.graphics_bottomright_buttons.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
