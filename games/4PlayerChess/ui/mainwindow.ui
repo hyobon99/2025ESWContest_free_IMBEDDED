@@ -25,620 +25,155 @@
    </property>
    <layout class="QHBoxLayout" name="mainLayout">
     <property name="spacing">
-     <number>50</number>
+     <number>20</number>
     </property>
     <property name="leftMargin">
-     <number>50</number>
+     <number>20</number>
     </property>
     <property name="topMargin">
-     <number>50</number>
+     <number>20</number>
     </property>
     <property name="rightMargin">
-     <number>50</number>
+     <number>20</number>
     </property>
     <property name="bottomMargin">
-     <number>50</number>
+     <number>20</number>
     </property>
     <item>
-     <widget class="View" name="view" native="true">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>700</width>
-        <height>700</height>
-       </size>
-      </property>
-      <property name="baseSize">
-       <size>
-        <width>0</width>
-        <height>0</height>
-       </size>
-      </property>
-      <property name="palette">
-       <palette>
-        <active>
-         <colorrole role="WindowText">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Button">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>50</red>
-            <green>50</green>
-            <blue>50</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Light">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>245</red>
-            <green>245</green>
-            <blue>245</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Midlight">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>220</red>
-            <green>220</green>
-            <blue>220</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Dark">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>145</red>
-            <green>145</green>
-            <blue>145</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Mid">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>170</red>
-            <green>170</green>
-            <blue>170</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Text">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="ButtonText">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Base">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>50</red>
-            <green>50</green>
-            <blue>50</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Window">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>50</red>
-            <green>50</green>
-            <blue>50</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </active>
-        <inactive>
-         <colorrole role="WindowText">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Button">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>50</red>
-            <green>50</green>
-            <blue>50</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Light">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>245</red>
-            <green>245</green>
-            <blue>245</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Midlight">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>220</red>
-            <green>220</green>
-            <blue>220</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Dark">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>145</red>
-            <green>145</green>
-            <blue>145</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Mid">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>170</red>
-            <green>170</green>
-            <blue>170</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Text">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="ButtonText">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Base">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>50</red>
-            <green>50</green>
-            <blue>50</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Window">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>50</red>
-            <green>50</green>
-            <blue>50</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </inactive>
-        <disabled>
-         <colorrole role="WindowText">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>145</red>
-            <green>145</green>
-            <blue>145</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Button">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>50</red>
-            <green>50</green>
-            <blue>50</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Light">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>245</red>
-            <green>245</green>
-            <blue>245</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Midlight">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>220</red>
-            <green>220</green>
-            <blue>220</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Dark">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>145</red>
-            <green>145</green>
-            <blue>145</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Mid">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>170</red>
-            <green>170</green>
-            <blue>170</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Text">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>145</red>
-            <green>145</green>
-            <blue>145</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="ButtonText">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>145</red>
-            <green>145</green>
-            <blue>145</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Base">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>50</red>
-            <green>50</green>
-            <blue>50</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Window">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>50</red>
-            <green>50</green>
-            <blue>50</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </disabled>
-       </palette>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <layout class="QVBoxLayout" name="verticalLayout">
+     <layout class="QVBoxLayout" name="leftLayout">
       <property name="spacing">
        <number>20</number>
       </property>
       <item>
-       <widget class="QTabWidget" name="tabWidget">
+       <widget class="View" name="view" native="true">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>1</horstretch>
+          <verstretch>1</verstretch>
          </sizepolicy>
         </property>
         <property name="minimumSize">
          <size>
-          <width>320</width>
-          <height>580</height>
+          <width>600</width>
+          <height>600</height>
          </size>
         </property>
-        <property name="focusPolicy">
-         <enum>Qt::NoFocus</enum>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QPushButton {
-	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,
-stop: 0 rgb(150, 150, 150), stop: 0.4 rgb(135, 135, 135),
-stop: 0.5 rgb(125, 125, 125), stop: 1.0 rgb(110, 110, 110));
-	border: 1px solid rgb(100, 100, 100);
-	border-radius: 4px;
-    	color: black;
-    	padding: 5px 10px;
-}
-QPushButton:hover {
-    	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 rgb(200, 200, 200), stop: 0.4 rgb(185, 185, 185), stop: 0.5 rgb(175, 175, 175), stop: 1.0 rgb(160, 160, 160));
-}
-QPushButton:pressed {
-    	background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 rgb(220, 220, 220), stop: 0.4 rgb(205, 205, 205), stop: 0.5 rgb(195, 195, 195), stop: 1.0 rgb(180, 180, 180));
-}
-QTabWidget::pane {
-    border-top: 1px solid rgb(150, 150, 150);
-}
-QTabWidget::tab-bar {
-    left: 10px;
-}
-QTabBar::tab {
-    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 rgb(180, 180, 180), stop: 0.4 rgb(165, 165, 165), stop: 0.5 rgb(155, 155, 155), stop: 1.0 rgb(140, 140, 140));
-    border: 1px solid rgb(150, 150, 150);
-    border-top-left-radius: 4px;
-    border-top-right-radius: 4px;
-    min-width: 10ex;
-    padding: 2px;
-}
-QTabBar::tab:selected, QTabBar::tab:hover {
-    background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 rgb(220, 220, 220), stop: 0.4 rgb(205, 205, 205), stop: 0.5 rgb(195, 195, 195), stop: 1.0 rgb(180, 180, 180));
-}
-QTabBar::tab:!selected {
-    margin-top: 2px;
-}
-QTabBar::tab:selected {
-    margin-left: -4px;
-    margin-right: -4px;
-}
-QTabBar::tab:first:selected {
-    margin-left: 0;
-}
-QTabBar::tab:last:selected {
-    margin-right: 0;
-}
-QTabBar::tab:only-one {
-    margin: 0;
-}</string>
-        </property>
-        <property name="currentIndex">
-         <number>0</number>
-        </property>
-        <widget class="QWidget" name="moveListTab">
-         <attribute name="title">
-          <string>Move List</string>
-         </attribute>
-         <widget class="QWidget" name="layoutWidget">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>10</y>
-            <width>302</width>
-            <height>542</height>
-           </rect>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_2">
-           <item>
-            <widget class="CommentEdit" name="commentField">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>300</width>
-               <height>90</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>90</height>
-              </size>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">background-color: rgb(255, 255, 255);</string>
-             </property>
-             <property name="frameShape">
-              <enum>QFrame::NoFrame</enum>
-             </property>
-             <property name="placeholderText">
-              <string>Enter comment for this move...</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QListWidget" name="moveListWidget">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>300</width>
-               <height>400</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <weight>75</weight>
-               <bold>true</bold>
-              </font>
-             </property>
-             <property name="focusPolicy">
-              <enum>Qt::NoFocus</enum>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">background-color: rgb(255, 255, 255);</string>
-             </property>
-             <property name="frameShape">
-              <enum>QFrame::NoFrame</enum>
-             </property>
-             <property name="editTriggers">
-              <set>QAbstractItemView::NoEditTriggers</set>
-             </property>
-             <property name="showDropIndicator" stdset="0">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_2">
-             <property name="spacing">
-              <number>5</number>
-             </property>
-             <item>
-              <widget class="QPushButton" name="firstMoveButton">
-               <property name="statusTip">
-                <string>Go to first move</string>
-               </property>
-               <property name="text">
-                <string>|&lt;</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="prevMoveButton">
-               <property name="statusTip">
-                <string>Go to previous move</string>
-               </property>
-               <property name="text">
-                <string>&lt;</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="nextMoveButton">
-               <property name="statusTip">
-                <string>Go to next move</string>
-               </property>
-               <property name="text">
-                <string>&gt;</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="lastMoveButton">
-               <property name="statusTip">
-                <string>Go to last move</string>
-               </property>
-               <property name="text">
-                <string>&gt;|</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </widget>
-        </widget>
-        <widget class="QWidget" name="pgnTab">
-         <attribute name="title">
-          <string>PGN4</string>
-         </attribute>
-         <widget class="QWidget" name="layoutWidget">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>10</y>
-            <width>302</width>
-            <height>542</height>
-           </rect>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_4">
-           <item>
-            <widget class="QPlainTextEdit" name="pgnField">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>300</width>
-               <height>500</height>
-              </size>
-             </property>
-             <property name="font">
-              <font>
-               <family>Trebuchet MS</family>
-              </font>
-             </property>
-             <property name="styleSheet">
-              <string notr="true">background-color: rgb(255, 255, 255);</string>
-             </property>
-             <property name="frameShape">
-              <enum>QFrame::NoFrame</enum>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_3">
-             <property name="spacing">
-              <number>5</number>
-             </property>
-             <item>
-              <widget class="QPushButton" name="loadPgnButton">
-               <property name="statusTip">
-                <string>Load game from PGN4 file</string>
-               </property>
-               <property name="text">
-                <string>Load...</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="savePgnButton">
-               <property name="enabled">
-                <bool>true</bool>
-               </property>
-               <property name="statusTip">
-                <string>Save game to PGN4 file</string>
-               </property>
-               <property name="text">
-                <string>Save As...</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer_2">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </widget>
-        </widget>
        </widget>
       </item>
       <item>
+       <layout class="QHBoxLayout" name="promotionLayout">
+        <property name="spacing">
+         <number>10</number>
+        </property>
+        <item>
+         <spacer name="horizontalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QPushButton" name="boardNPromoteButton">
+          <property name="minimumSize">
+           <size>
+            <width>80</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="statusTip">
+           <string>Knight</string>
+          </property>
+          <property name="text">
+           <string>Knight</string>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: white; color: black; border: 1px solid gray;</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="boardBPromoteButton">
+          <property name="minimumSize">
+           <size>
+            <width>80</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="statusTip">
+           <string>Bishop</string>
+          </property>
+          <property name="text">
+           <string>Bishop</string>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: white; color: black; border: 1px solid gray;</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="boardRPromoteButton">
+          <property name="minimumSize">
+           <size>
+            <width>80</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="statusTip">
+           <string>Rook</string>
+          </property>
+          <property name="text">
+           <string>Rook</string>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: white; color: black; border: 1px solid gray;</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="boardQPromoteButton">
+          <property name="minimumSize">
+           <size>
+            <width>80</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="statusTip">
+           <string>Queen</string>
+          </property>
+          <property name="text">
+           <string>Queen</string>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: white; color: black; border: 1px solid gray;</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_4">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
        <widget class="QGroupBox" name="fenGroupBox">
+        <property name="visible">
+         <bool>false</bool>
+        </property>
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -647,7 +182,7 @@ QTabBar::tab:only-one {
         </property>
         <property name="minimumSize">
          <size>
-          <width>320</width>
+          <width>200</width>
           <height>110</height>
          </size>
         </property>
@@ -698,7 +233,7 @@ QPushButton#boardResetButton {
             </property>
             <property name="minimumSize">
              <size>
-              <width>300</width>
+              <width>200</width>
               <height>0</height>
              </size>
             </property>
@@ -774,55 +309,163 @@ color: rgb(0, 0, 0);</string>
             </item>
            </layout>
           </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout">
-            <item>
-             <widget class="QPushButton" name="boardNPromoteButton">
-              <property name="statusTip">
-               <string>Knight</string>
-              </property>
-              <property name="text">
-               <string>Knight</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="boardBPromoteButton">
-              <property name="statusTip">
-               <string>Bishop</string>
-              </property>
-              <property name="text">
-               <string>Bishop</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="boardRPromoteButton">
-              <property name="statusTip">
-               <string>Rook</string>
-              </property>
-              <property name="text">
-               <string>Rook</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="boardQPromoteButton">
-              <property name="statusTip">
-               <string>Queen</string>
-              </property>
-              <property name="text">
-               <string>Queen</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
          </layout>
         </widget>
        </widget>
       </item>
      </layout>
+    </item>
+    <item>
+     <layout class="QVBoxLayout" name="rightLayout">
+      <property name="spacing">
+       <number>20</number>
+      </property>
+      <item>
+       <widget class="QListWidget" name="moveListWidget">
+        <property name="minimumSize">
+         <size>
+          <width>200</width>
+          <height>200</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color: white; color: black;</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="moveButtonLayout">
+        <item>
+         <widget class="QPushButton" name="firstMoveButton">
+          <property name="text">
+           <string>⏮</string>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: white; color: black; border: 1px solid gray;</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="prevMoveButton">
+          <property name="text">
+           <string>⏪</string>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: white; color: black; border: 1px solid gray;</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="nextMoveButton">
+          <property name="text">
+           <string>⏩</string>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: white; color: black; border: 1px solid gray;</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="lastMoveButton">
+          <property name="text">
+           <string>⏭</string>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: white; color: black; border: 1px solid gray;</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QPlainTextEdit" name="commentField">
+        <property name="minimumSize">
+         <size>
+          <width>200</width>
+          <height>50</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color: white; color: black;</string>
+        </property>
+        <property name="placeholderText">
+         <string>Enter comment for this move...</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPlainTextEdit" name="pgnField">
+        <property name="minimumSize">
+         <size>
+          <width>200</width>
+          <height>100</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color: white; color: black;</string>
+        </property>
+        <property name="placeholderText">
+         <string>PGN4 notation will appear here...</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="pgnButtonLayout">
+        <item>
+         <widget class="QPushButton" name="loadPgnButton">
+          <property name="text">
+           <string>Load PGN4</string>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: white; color: black; border: 1px solid gray;</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="savePgnButton">
+          <property name="text">
+           <string>Save PGN4</string>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: white; color: black; border: 1px solid gray;</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QWidget" name="timerWidget" native="true">
+      <property name="minimumSize">
+       <size>
+        <width>200</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(60, 60, 60);
+       border-radius: 10px;
+       padding: 10px;</string>
+      </property>
+      <layout class="QVBoxLayout" name="timerLayout">
+       <property name="spacing">
+        <number>10</number>
+       </property>
+       <property name="leftMargin">
+        <number>10</number>
+       </property>
+       <property name="topMargin">
+        <number>10</number>
+       </property>
+       <property name="rightMargin">
+        <number>10</number>
+       </property>
+       <property name="bottomMargin">
+        <number>10</number>
+       </property>
+      </layout>
+     </widget>
     </item>
    </layout>
   </widget>
@@ -831,12 +474,9 @@ color: rgb(0, 0, 0);</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1200</width>
-     <height>22</height>
+     <width>800</width>
+     <height>21</height>
     </rect>
-   </property>
-   <property name="nativeMenuBar">
-    <bool>false</bool>
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
@@ -844,15 +484,12 @@ color: rgb(0, 0, 0);</string>
     </property>
     <addaction name="actionNew_Game"/>
     <addaction name="actionLoad_Game"/>
-    <addaction name="separator"/>
     <addaction name="actionSave_Game_As"/>
-   </widget>
-   <widget class="QMenu" name="menuEdit">
-    <property name="title">
-     <string>Edit</string>
-    </property>
+    <addaction name="separator"/>
     <addaction name="actionCopy_FEN4"/>
     <addaction name="actionPaste_FEN4"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -866,26 +503,21 @@ color: rgb(0, 0, 0);</string>
     <property name="title">
      <string>4PlayerChess</string>
     </property>
-    <addaction name="actionAbout"/>
-    <addaction name="actionCheck_for_Updates"/>
-    <addaction name="separator"/>
     <addaction name="actionPreferences"/>
-    <addaction name="separator"/>
-    <addaction name="actionQuit"/>
+    <addaction name="actionCheck_for_Updates"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
      <string>Help</string>
     </property>
-    <addaction name="actionAbout_PyQt"/>
-    <addaction name="separator"/>
     <addaction name="actionQuick_Reference"/>
+    <addaction name="actionAbout"/>
+    <addaction name="actionAbout_PyQt"/>
     <addaction name="actionReport_Bug"/>
    </widget>
-   <addaction name="menu4PlayerChess"/>
    <addaction name="menuFile"/>
-   <addaction name="menuEdit"/>
    <addaction name="menuView"/>
+   <addaction name="menu4PlayerChess"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusbar">
@@ -894,15 +526,17 @@ color: rgb(0, 0, 0);</string>
 color: grey;</string>
    </property>
   </widget>
+  <action name="actionNew_Game">
+   <property name="text">
+    <string>New Game</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+  </action>
   <action name="actionLoad_Game">
    <property name="text">
-    <string>Load Game...</string>
-   </property>
-   <property name="toolTip">
-    <string>Load Game...</string>
-   </property>
-   <property name="statusTip">
-    <string>Load game from PGN4 file</string>
+    <string>Load Game</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
@@ -910,13 +544,7 @@ color: grey;</string>
   </action>
   <action name="actionSave_Game_As">
    <property name="text">
-    <string>Save Game As...</string>
-   </property>
-   <property name="toolTip">
-    <string>Save Game As...</string>
-   </property>
-   <property name="statusTip">
-    <string>Save game to PGN4 file</string>
+    <string>Save Game As</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
@@ -924,43 +552,15 @@ color: grey;</string>
   </action>
   <action name="actionQuit">
    <property name="text">
-    <string>Quit 4PlayerChess</string>
-   </property>
-   <property name="statusTip">
-    <string>Quit application</string>
+    <string>Quit</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
    </property>
   </action>
-  <action name="actionCopy_FEN4">
-   <property name="text">
-    <string>Copy FEN4</string>
-   </property>
-   <property name="statusTip">
-    <string>Copy FEN4 to clipboard</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+C</string>
-   </property>
-  </action>
-  <action name="actionPaste_FEN4">
-   <property name="text">
-    <string>Paste FEN4</string>
-   </property>
-   <property name="statusTip">
-    <string>Paste FEN4 from clipboard</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+V</string>
-   </property>
-  </action>
   <action name="actionRotate_Board_Left">
    <property name="text">
     <string>Rotate Board Left</string>
-   </property>
-   <property name="statusTip">
-    <string>Rotate board counterclockwise (next player)</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+L</string>
@@ -970,9 +570,6 @@ color: grey;</string>
    <property name="text">
     <string>Rotate Board Right</string>
    </property>
-   <property name="statusTip">
-    <string>Rotate board clockwise (previous player)</string>
-   </property>
    <property name="shortcut">
     <string>Ctrl+R</string>
    </property>
@@ -981,67 +578,54 @@ color: grey;</string>
    <property name="text">
     <string>Flip Board</string>
    </property>
-   <property name="statusTip">
-    <string>Flip board</string>
-   </property>
    <property name="shortcut">
     <string>Ctrl+F</string>
    </property>
   </action>
-  <action name="actionNew_Game">
-   <property name="text">
-    <string>New Game</string>
-   </property>
-   <property name="statusTip">
-    <string>Start new game</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+N</string>
-   </property>
-  </action>
   <action name="actionPreferences">
    <property name="text">
-    <string>Preferences...</string>
-   </property>
-   <property name="statusTip">
-    <string>Application preferences</string>
+    <string>Preferences</string>
    </property>
   </action>
   <action name="actionCheck_for_Updates">
    <property name="text">
-    <string>Check for Updates...</string>
-   </property>
-   <property name="statusTip">
-    <string>Check if updates are available</string>
-   </property>
-  </action>
-  <action name="actionAbout">
-   <property name="text">
-    <string>About 4PlayerChess</string>
-   </property>
-   <property name="statusTip">
-    <string>Application info</string>
+    <string>Check for Updates</string>
    </property>
   </action>
   <action name="actionQuick_Reference">
    <property name="text">
-    <string>Quick Reference Guide</string>
-   </property>
-   <property name="statusTip">
-    <string>Overview of application features and shortcuts</string>
+    <string>Quick Reference</string>
    </property>
   </action>
-  <action name="actionReport_Bug">
+  <action name="actionAbout">
    <property name="text">
-    <string>Report Bug or Request Feature...</string>
-   </property>
-   <property name="statusTip">
-    <string>Open GitHub issues page in browser to report a bug or request a feature</string>
+    <string>About</string>
    </property>
   </action>
   <action name="actionAbout_PyQt">
    <property name="text">
     <string>About PyQt</string>
+   </property>
+  </action>
+  <action name="actionReport_Bug">
+   <property name="text">
+    <string>Report Bug</string>
+   </property>
+  </action>
+  <action name="actionCopy_FEN4">
+   <property name="text">
+    <string>Copy FEN4</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="actionPaste_FEN4">
+   <property name="text">
+    <string>Paste FEN4</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+V</string>
    </property>
   </action>
  </widget>
@@ -1051,11 +635,6 @@ color: grey;</string>
    <extends>QWidget</extends>
    <header>/gui/view</header>
    <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>CommentEdit</class>
-   <extends>QPlainTextEdit</extends>
-   <header>/gui/view</header>
   </customwidget>
  </customwidgets>
  <resources/>

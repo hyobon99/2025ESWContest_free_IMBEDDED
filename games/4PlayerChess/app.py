@@ -19,8 +19,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-from PyQt5.QtWidgets import QApplication
-from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLineEdit, QPlainTextEdit, QFrame
+from PyQt5.QtGui import QIcon, QResizeEvent
 from PyQt5.QtCore import QRect
 from gui.main import MainWindow
 sys.path.append('./4PlayerChess-master/')
@@ -28,6 +28,7 @@ from actors.generate_actors import generate_actors
 
 
 def main():
+
     """Creates application and main window and sets application icon."""
     app = QApplication(sys.argv)
     app.setWindowIcon(QIcon('resources/img/icon.svg'))
@@ -38,10 +39,17 @@ def main():
     else:
       actors = generate_actors([*sys.argv])
     window = MainWindow(actors, moves)
+    
+    # Set window size to a reasonable size for 4-player chess
+    window.resize(800, 800)
+    
+    # Center the window on screen
     screen = QRect(app.desktop().availableGeometry())
     x = screen.left() + int((screen.width() - window.width()) / 2)
     y = screen.top() + int((screen.height() - window.height()) / 2)
     window.move(x, y)
+    
+    # Show window normally instead of fullscreen
     window.show()
     sys.exit(app.exec_())
 

@@ -324,7 +324,17 @@ class Board(QObject):
         else:
             return False
 
-
+    def staleMate(self, color):
+        pieceTypes = [PAWN, ROOK, KNIGHT, BISHOP, QUEEN, KING]
+        totMoves = 0
+        if not self.kingInCheck(color)[0]:
+            for ptype in pieceTypes:
+                for pieceFR in self.getSquares(self.pieceSet(color, ptype)):
+                    piece = self.square(pieceFR[0], pieceFR[1])
+                    totMoves = totMoves + len(self.getSquares(self.legalMoves(ptype, piece, color)))
+            return totMoves == 0
+        else:
+            return False
 
 
 

@@ -48,8 +48,8 @@ class Algorithm(QObject):
     playerRatingChanged = pyqtSignal(str, str, str, str)
     cannotReadPgn4 = pyqtSignal()
 
-    NoResult, Team1Wins, Team2Wins, Draw = [
-        '*', '1-0', '0-1', '1/2-1/2']  # Results
+    NoResult, Team1Wins, Team2Wins,Team1Wins_Timeout , Team2Wins_Timeout, Draw = [
+        '*', '1-0 Mate', '0-1 Mate', '1-0 Time', '0-1 Time', '1/2-1/2']  # Results
     NoPlayer, Red, Blue, Yellow, Green = ['?', 'r', 'b', 'y', 'g']  # Players
     playerQueue = deque([Red, Blue, Yellow, Green])
 
@@ -162,10 +162,12 @@ class Algorithm(QObject):
 
     def setResult(self, value):
         """Updates game result, if changed."""
+        print(f"Setting result: {value}, current result: {self.result}")
         if self.result == value:
             return
         if self.result == self.NoResult:
             self.result = value
+            print(f"Emitting gameOver signal with result: {value}")
             self.gameOver.emit(self.result)
         else:
             self.result = value
@@ -178,8 +180,29 @@ class Algorithm(QObject):
         self.currentPlayer = value
         # self.setPlayerQueue(self.currentPlayer)
         self.currentPlayerChanged.emit(self.currentPlayer)
-        if self.board.checkMate(self.board.colorMapping[self.playerQueue[0]]):
+        
+        # Check for check and checkmate
+        if hasattr(self, 'sound_manager') and self.sound_manager:
+            current_color = self.board.colorMapping[self.playerQueue[0]]
+            
+            # Check for check
+            if self.board.kingInCheck(current_color)[0]:
+                self.sound_manager.play_check_sound()
+            
+            # Check for checkmate
+            if self.board.checkMate(current_color):
+                self.sound_manager.play_checkmate_sound()
+                self.currentPlayer = self.NoPlayer
+                # 체크메이트 발생 시 게임 결과 설정
+                if self.playerQueue[0] in ['r', 'y']:  # Team 1
+                    self.setResult(self.Team2Wins)
+                else:  # Team 2
+                    self.setResult(self.Team1Wins)
+
+        if self.board.staleMate(self.board.colorMapping[self.playerQueue[0]]):
             self.currentPlayer = self.NoPlayer
+            # 스테일메이트 발생 시 게임 결과 설정
+            self.setResult(self.Draw)
 
     def setPlayerQueue(self, currentPlayer):
         """Rotates player queue such that the current player is the first in the queue."""
