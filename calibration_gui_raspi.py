@@ -400,13 +400,13 @@ class CalibrationGUI(QMainWindow):
     def start_wait_period(self):
         """10초 대기 기간 시작"""
         self.countdown = 10
-        self.timer.start(1000)  # 1초마다
+        self.timer.start(1000)  # 1초마다``
         self.wait_timer.start(10000)  # 10초 후 타임아웃
         self.status_label.setText('10초 동안 터치 신호가 없으면 캘리브레이션이 시작됩니다...')
         
         # 10초 대기 중에도 터치 감지를 위해 시리얼 연결 및 스레드 시작
         try:
-            self.ser = serial.Serial('COM9', 115200, timeout=1)
+            self.ser = serial.Serial('/dev/ttyACM0', 115200, timeout=1)
             self.offset = self.calibrate_offset()
             self.calibration_thread = CalibrationThread(self.ser, self.offset)
             self.calibration_thread.touch_detected.connect(self.on_touch_detected)
