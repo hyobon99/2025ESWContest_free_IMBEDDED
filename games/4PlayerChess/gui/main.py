@@ -28,6 +28,7 @@ from ui.infodialog import Ui_InfoDialog
 from gui.algorithm import Teams
 from gui.view import Comment
 from gui.sound_manager import SoundManager
+from gui.promotion_dialog import PromotionDialog
 from urllib import request
 import certifi
 from re import compile
@@ -133,6 +134,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # self.commentField.focusOutEvent = lambda event: self.setComment() # commentField 숨겨짐
         self.algorithm.cannotReadPgn4.connect(self.pgnParseError)
         self.algorithm.gameOver.connect(self.show_game_over)
+        self.algorithm.pawnPromotionRequested.connect(self.show_promotion_dialog)
 
         # Connect menu actions (메뉴바가 숨겨졌으므로, 메뉴 액션 연결도 필요 없을 수 있음)
         # ... (기존 메뉴 액션 연결 코드) ...
@@ -711,6 +713,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         
         # 디버깅을 위한 로그 출력
         print(f"Game Over: {result}")
+
+    def show_promotion_dialog(self, player_color, file, rank):
+        """폰 승진 다이얼로그를 표시합니다."""
+        dialog = PromotionDialog(player_color, self)
+        dialog.pieceSelected.connect(self.handle_promotion_selection)
+        dialog.exec_()
+        
+    def handle_promotion_selection(self, piece_code):
+        """폰 승진 선택을 처리합니다."""
+        self.algorithm.promoteValue(piece_code)
 
 
 class Preferences(QDialog, Ui_Preferences):

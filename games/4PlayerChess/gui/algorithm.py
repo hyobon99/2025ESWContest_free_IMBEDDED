@@ -47,6 +47,7 @@ class Algorithm(QObject):
     playerNamesChanged = pyqtSignal(str, str, str, str)
     playerRatingChanged = pyqtSignal(str, str, str, str)
     cannotReadPgn4 = pyqtSignal()
+    pawnPromotionRequested = pyqtSignal(str, int, int)  # 플레이어 색상, 파일, 랭크
 
     NoResult, Team1Wins, Team2Wins,Team1Wins_Timeout , Team2Wins_Timeout, Draw = [
         '*', '1-0 Mate', '0-1 Mate', '1-0 Time', '0-1 Time', '1/2-1/2']  # Results
@@ -580,9 +581,14 @@ class Algorithm(QObject):
             self.board.pieceBB[4] ^= 1 << self.board.square(self.promoteSpace[0], self.promoteSpace[1])
             self.board.pieceBB[piece] ^= 1 << self.board.square(self.promoteSpace[0], self.promoteSpace[1])
             self.promoteSpace = None
+            
+            # 플레이어 턴을 다음 플레이어로 변경 (폰을 움직인 플레이어 다음으로)
             self.playerQueue.rotate(-1)
             self.setCurrentPlayer(self.playerQueue[0])
+            
             # Update FEN4 and PGN4
+            fen4 = self.getFen4()
+            self.getPgn4()
 
     def getPgn4(self):
         """Generates PGN4 from current game."""
@@ -1081,7 +1087,7 @@ class Teams(Algorithm):
 
         if requestPromote:
           self.promoteSpace = (toFile, toRank)
-          self.setCurrentPlayer(self.NoPlayer)
+          self.pawnPromotionRequested.emit(self.currentPlayer, toFile, toRank)
         else:
           # Rotate player queue and get next player from the queue (first element)
           self.playerQueue.rotate(-1)
