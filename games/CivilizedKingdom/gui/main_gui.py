@@ -185,6 +185,7 @@ class MainWindow(QMainWindow):
         
         # 창 크기를 화면에 맞게 조정
         self.resize(1280, 800)
+        self.setFixedSize(1280, 800)  # 해상도 고정
         
         # 전체 화면용 스타일시트 적용
         self.setStyleSheet("""
@@ -199,49 +200,50 @@ class MainWindow(QMainWindow):
                 color: white;
                 border: 2px solid #666;
                 border-radius: 8px;
+                font-weight: bold;
             }
             QPushButton:hover {
                 background-color: #5a5a5a;
-                border-color: #777;
+                border-color: #888;
             }
             QPushButton:pressed {
                 background-color: #3a3a3a;
+                border-color: #444;
+            }
+            QPushButton:disabled {
+                background-color: #2a2a2a;
+                color: #666;
+                border-color: #444;
             }
             QTextEdit, QTextBrowser {
-                font-size: 14px;
-                padding: 8px;
-                background-color: #3a3a3a;
+                background-color: #1a1a1a;
                 color: white;
                 border: 1px solid #555;
                 border-radius: 5px;
+                padding: 8px;
+                font-size: 14px;
             }
             QListWidget {
-                font-size: 14px;
-                background-color: #3a3a3a;
+                background-color: #1a1a1a;
                 color: white;
                 border: 1px solid #555;
                 border-radius: 5px;
                 padding: 5px;
+                font-size: 14px;
             }
             QListWidget::item {
                 padding: 8px;
-                border-bottom: 1px solid #555;
+                border-bottom: 1px solid #333;
             }
             QListWidget::item:selected {
-                background-color: #5a5a5a;
+                background-color: #4a4a4a;
             }
-            QVBoxLayout, QHBoxLayout {
-                margin: 10px;
-                spacing: 10px;
-            }
-            
-            /* 캐릭터 생성 페이지 전용 스타일 */
             QGroupBox {
-                font-size: 12px;
+                font-size: 14px;
                 font-weight: bold;
                 color: white;
-                border: 1px solid #555;
-                border-radius: 5px;
+                border: 2px solid #555;
+                border-radius: 8px;
                 margin-top: 10px;
                 padding-top: 10px;
             }
@@ -251,41 +253,110 @@ class MainWindow(QMainWindow):
                 padding: 0 5px 0 5px;
             }
             QLabel {
-                font-size: 12px;
                 color: white;
+                font-size: 14px;
             }
-            QLineEdit, QComboBox {
-                font-size: 12px;
-                padding: 5px;
+            QComboBox {
                 background-color: #3a3a3a;
                 color: white;
                 border: 1px solid #555;
-                border-radius: 3px;
-                min-height: 25px;
+                border-radius: 5px;
+                padding: 8px;
+                font-size: 14px;
+                min-height: 20px;
+            }
+            QComboBox::drop-down {
+                border: none;
+                width: 20px;
+            }
+            QComboBox::down-arrow {
+                image: none;
+                border-left: 5px solid transparent;
+                border-right: 5px solid transparent;
+                border-top: 5px solid white;
             }
             QSpinBox {
-                font-size: 12px;
-                padding: 3px;
                 background-color: #3a3a3a;
                 color: white;
                 border: 1px solid #555;
-                border-radius: 3px;
-                min-height: 25px;
-                min-width: 60px;
-            }
-            
-            /* 캐릭터 생성 페이지 하단 버튼들 */
-            #spell_button, #p4_goback_btn, #p4_goon_btn {
+                border-radius: 5px;
+                padding: 5px;
                 font-size: 14px;
+                min-height: 20px;
+            }
+            QLineEdit {
+                background-color: #3a3a3a;
+                color: white;
+                border: 1px solid #555;
+                border-radius: 5px;
                 padding: 8px;
-                min-height: 35px;
-                max-height: 35px;
+                font-size: 14px;
+                min-height: 20px;
             }
         """)
         
+        # 메인 화면 시작 버튼 크기 조정 - 더 크고 확실하게
+        self.ui.p1_to_p2_btn.setMinimumSize(300, 100)
+        self.ui.p1_to_p2_btn.setMaximumSize(400, 120)
+        self.ui.p1_to_p2_btn.setStyleSheet("""
+            QPushButton {
+                font-size: 32px;
+                font-weight: bold;
+                background-color: #FF5722;
+                color: white;
+                border: 4px solid #E64A19;
+                border-radius: 20px;
+                padding: 25px;
+                min-height: 100px;
+                min-width: 300px;
+            }
+            QPushButton:hover {
+                background-color: #E64A19;
+                border-color: #D84315;
+                transform: scale(1.05);
+            }
+            QPushButton:pressed {
+                background-color: #D84315;
+                border-color: #BF360C;
+            }
+        """)
+        
+        # 메인 화면 레이아웃 조정
+        self.ui.p1_text_title.setMinimumHeight(100)
+        self.ui.p1_text_title.setMaximumHeight(150)
+        self.ui.p1_text_title.setStyleSheet("""
+            QTextEdit {
+                background-color: #1a1a1a;
+                color: white;
+                border: 2px solid #555;
+                border-radius: 10px;
+                padding: 15px;
+                font-size: 18px;
+                font-weight: bold;
+            }
+        """)
+        
+        # 메인 화면 레이아웃을 중앙 정렬로 수정
+        # 기존 레이아웃 제거
+        self.ui.main.layout().removeItem(self.ui.horizontalLayout_3)
+        
+        # 새로운 중앙 정렬 레이아웃 생성
+        from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QSpacerItem, QSizePolicy
+        
+        # 기존 verticalLayout_4를 중앙에 배치
+        self.ui.verticalLayout_4.setAlignment(Qt.AlignCenter)
+        
+        # 상단 여백 추가
+        top_spacer = QSpacerItem(20, 200, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.ui.verticalLayout_5.insertItem(1, top_spacer)
+        
+        # 하단 여백 추가
+        bottom_spacer = QSpacerItem(20, 200, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.ui.verticalLayout_5.addItem(bottom_spacer)
+        
         # 레이아웃 여백 조정
-        self.ui.centralwidget.layout().setContentsMargins(20, 20, 20, 20)
-        self.ui.centralwidget.layout().setSpacing(15)
+        self.ui.centralwidget.layout().setContentsMargins(50, 50, 50, 50)
+        self.ui.centralwidget.layout().setSpacing(30)
         
         # 전체 화면으로 설정
         self.showFullScreen()
