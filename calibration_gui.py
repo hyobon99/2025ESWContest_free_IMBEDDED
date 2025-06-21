@@ -1,6 +1,7 @@
 import sys
 import time
 import threading
+import subprocess
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, 
                              QWidget, QLabel, QPushButton, QProgressBar, QFrame)
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal, QThread
@@ -627,6 +628,13 @@ class CalibrationGUI(QMainWindow):
         """창을 최소화하여 마우스 제어가 가능하도록 함"""
         self.showMinimized()
         self.status_label.setText('창이 최소화되었습니다. 터치패드로 마우스를 제어할 수 있습니다.')
+        
+        # 게임 런처 실행
+        try:
+            launcher_process = subprocess.Popen([sys.executable, 'launcher.py'])
+            print("게임 런처가 시작되었습니다.")
+        except Exception as e:
+            print(f"게임 런처 실행 중 오류 발생: {e}")
     
     def closeEvent(self, event):
         """창 닫을 때 정리"""
