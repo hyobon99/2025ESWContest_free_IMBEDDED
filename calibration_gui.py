@@ -407,7 +407,7 @@ class CalibrationGUI(QMainWindow):
         
         # 10초 대기 중에도 터치 감지를 위해 시리얼 연결 및 스레드 시작
         try:
-            self.ser = serial.Serial('COM9', 115200, timeout=1)
+            self.ser = serial.Serial('/dev/ttyACM0', 115200, timeout=1)
             self.offset = self.calibrate_offset()
             self.calibration_thread = CalibrationThread(self.ser, self.offset)
             self.calibration_thread.touch_detected.connect(self.on_touch_detected)
@@ -427,7 +427,7 @@ class CalibrationGUI(QMainWindow):
         try:
             # 이미 시리얼이 연결되어 있으면 재사용
             if self.ser is None:
-                self.ser = serial.Serial('COM9', 115200, timeout=1)
+                self.ser = serial.Serial('/dev/ttyACM0', 115200, timeout=1)
                 self.offset = self.calibrate_offset()
                 self.calibration_thread = CalibrationThread(self.ser, self.offset)
                 self.calibration_thread.touch_detected.connect(self.on_touch_detected)

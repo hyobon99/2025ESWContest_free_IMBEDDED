@@ -722,9 +722,34 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # 디버깅을 위한 로그 출력
         print(f"Game Over: {result}")
         
-        # 10초 후 게임 종료
-        print("게임이 10초 후에 자동으로 종료됩니다...")
-        self.game_exit_timer.start(10000)  # 10초 = 10000ms
+        # 카운트다운 팝업창 생성
+        self.countdown_dialog = QMessageBox(self)
+        self.countdown_dialog.setWindowTitle("게임 종료")
+        self.countdown_dialog.setIcon(QMessageBox.Information)
+        self.countdown_dialog.setStandardButtons(QMessageBox.NoButton)  # 버튼 없음
+        
+        # 카운트다운 타이머 설정
+        self.countdown_seconds = 3
+        self.countdown_timer = QTimer(self)
+        self.countdown_timer.timeout.connect(self.update_countdown)
+        self.countdown_timer.start(1000)  # 1초마다 업데이트
+        
+        # 초기 카운트다운 표시
+        self.update_countdown()
+        
+        # 3초 후 게임 종료
+        print("게임이 3초 후에 자동으로 종료됩니다...")
+        self.game_exit_timer.start(3000)  # 3초 = 3000ms
+
+    def update_countdown(self):
+        """카운트다운을 업데이트합니다."""
+        if self.countdown_seconds > 0:
+            self.countdown_dialog.setText(f"{self.countdown_seconds}초 후 게임을 종료합니다...")
+            self.countdown_dialog.show()
+            self.countdown_seconds -= 1
+        else:
+            self.countdown_timer.stop()
+            self.countdown_dialog.close()
 
     def show_promotion_dialog(self, player_color, file, rank):
         """폰 승진 다이얼로그를 표시합니다."""
