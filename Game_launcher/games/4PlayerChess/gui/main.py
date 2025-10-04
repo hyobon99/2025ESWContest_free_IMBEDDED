@@ -176,6 +176,9 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.game_exit_timer = QTimer(self)
         self.game_exit_timer.setSingleShot(True)
         self.game_exit_timer.timeout.connect(self.force_close)
+        
+        # 게임 종료 버튼 추가
+        self.create_exit_button()
 
         # Game loop timer (타이머 기능 제거로 주석 처리)
         # self.game_loop_timer = QTimer(self)
@@ -836,6 +839,69 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         app = QApplication.instance()
         if app:
             app.quit()
+    
+    def create_exit_button(self):
+        """화면 오른쪽 상단에 게임 종료 버튼을 생성합니다."""
+        from PyQt5.QtWidgets import QPushButton
+        
+        self.exit_button = QPushButton("✕ 게임 종료", self)
+        self.exit_button.setStyleSheet("""
+            QPushButton {
+                background-color: rgba(255, 59, 48, 200);
+                color: white;
+                border: 2px solid rgba(255, 59, 48, 255);
+                border-radius: 8px;
+                font-size: 16px;
+                font-weight: bold;
+                padding: 10px 20px;
+                min-width: 140px;
+            }
+            QPushButton:hover {
+                background-color: rgba(255, 79, 68, 230);
+                border: 2px solid rgba(255, 79, 68, 255);
+            }
+            QPushButton:pressed {
+                background-color: rgba(220, 39, 28, 255);
+            }
+        """)
+        
+        # 버튼 클릭 시 종료 확인 다이얼로그 표시
+        self.exit_button.clicked.connect(self.confirm_exit_game)
+        
+        # 버튼을 항상 최상위에 유지
+        self.exit_button.raise_()
+        self.exit_button.show()
+        
+        # 초기 위치 설정 (오른쪽 상단)
+        self.position_exit_button()
+    
+    def position_exit_button(self):
+        """종료 버튼의 위치를 화면 오른쪽 상단에 배치합니다."""
+        if hasattr(self, 'exit_button'):
+            button_width = self.exit_button.width()
+            button_height = self.exit_button.height()
+            x = self.width() - button_width - 20
+            y = 20
+            self.exit_button.move(x, y)
+    
+    def resizeEvent(self, event):
+        """창 크기가 변경될 때 종료 버튼 위치를 재조정합니다."""
+        super().resizeEvent(event)
+        self.position_exit_button()
+    
+    def confirm_exit_game(self):
+        """게임 종료 확인 다이얼로그를 표시합니다."""
+        reply = QMessageBox.question(
+            self,
+            '게임 종료',
+            '정말로 게임을 종료하시겠습니까?',
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
+        
+        if reply == QMessageBox.Yes:
+            print("사용자가 게임 종료 버튼을 눌렀습니다.")
+            self.close()
 
 
 class Preferences(QDialog, Ui_Preferences):
